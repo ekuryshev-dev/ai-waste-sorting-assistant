@@ -1,5 +1,5 @@
 import pytest
-from src.llm_access_classes import LLMClientInter, LLMMockClient
+from llm_access_classes import LLMClientInter, LLMMockClient
 
 
 def test_mock_returns_fixed_reply():

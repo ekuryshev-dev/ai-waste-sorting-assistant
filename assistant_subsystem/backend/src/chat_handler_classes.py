@@ -1,30 +1,37 @@
-from data_handler_classes import RulesRepo, ChatRepo
-from llm_access_classes import OpenAIClient
-from config import ai_api, ai_model, ai_timeout, message_limit, chat_expiry, db_manager
-
-
 class PromptBuilder:
-    def __init__(self):
-        self.system_prompt = ""
+    def __init__(self, system_prompt):
+        self.system_prompt = system_prompt
 
-    def build(self, history, rules):
-        system_message = self.system_prompt + rules
-        messages = [{"role": "system", "content": system_message}] + history
-        return messages
+    def rules_transfigure(self, rules):
+        lines = []
+        for r in rules:
+            line = f"- {r.region} | {r.material}: {r.category.name}"
+            if r.instructions:
+                line += f" ({r.instructions})"
+            lines.append(line)
+        return "\n".join(lines)
+
+    def build(self, history, rules, question):
+        system = f"{self.system_prompt}\n\nRecycling rules:\n{self.rules_transfigure(rules)}"
+        past = [{"role": m.role, "content": m.content} for m in history]
+        return [{"role": "system", "content": system}] + past + [{"role": "user", "content": question}]
+
 
 class AssistantService:
-    def __init__(self):
-        self.rules_repo = RulesRepo(db_manager.get_db())
-        self.chat_repo = ChatRepo(db_manager.get_db(), chat_expiry, message_limit)
-        self.ai_client = OpenAIClient(ai_model, ai_timeout, ai_api)
-        self.prompt_builder = PromptBuilder()
+    def __init__(self, rules_repo, chat_repo, ai_client, prompt_builder):
+        self.rules_repo = rules_repo
+        self.chat_repo = chat_repo
+        self.ai_client = ai_client
+        self.prompt_builder = prompt_builder
 
-    def converse(self, token, message):
-        self.chat_repo.add_new(token, "user", message)
+    def converse(self, token, question):
         history = self.chat_repo.get_history(token)
         rules = self.rules_repo.get_rules()
-        messages = self.promp_builder.build(history, rules)
-        return self.ai_client.converse(messages)
+        messages = self.prompt_builder.build(history, rules, question)
+        reply = self.ai_client.converse(messages)
+        self.chat_repo.add_new(token, "user", question)
+        self.chat_repo.add_new(token, "assistant", reply)
+        return reply
 
     def get_history(self, token):
         return self.chat_repo.get_history(token)
