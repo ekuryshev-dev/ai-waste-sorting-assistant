@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 class LLMClientInter(ABC):
     @abstractmethod
-    def converse(self, messages): pass
+    def converse(self, messages) -> str: pass
 
 
 class LLMMockClient(LLMClientInter):

@@ -16,4 +16,4 @@ def test_mock_records_received_messages():
 
 def test_interface_cannot_be_instantiated():
     with pytest.raises(TypeError):
-        LLMClientInter()
+        LLMClientInter() # type: ignore

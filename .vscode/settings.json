@@ -1,0 +1,6 @@
+{
+  "python.analysis.extraPaths": [
+    "assistant_subsystem/backend/src"
+  ]
+}
+

@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Optional
 from uuid import UUID
-from sqlmodel import Field, Session, SQLModel, create_engine, delete, select
+from sqlmodel import Field, Session, SQLModel, create_engine, delete, select, col
 
 
 class Category(str, Enum):
@@ -35,7 +35,7 @@ class RulesRepo:
     def get_rules(self, region=None):
         stmt = select(RecyclingRule)
         if region is not None:
-            stmt = stmt.where(RecyclingRule.region == region)
+            stmt = stmt.where(col(RecyclingRule.region) == region)
         return self.session.exec(stmt).all()
 
 
@@ -54,20 +54,20 @@ class ChatRepo:
         self.delete_old()
         stmt = (
             select(ChatMessage)
-            .where(ChatMessage.token == token)
-            .order_by(ChatMessage.timestamp.desc())
+            .where(col(ChatMessage.token) == token)
+            .order_by(col(ChatMessage.timestamp).desc())
             .limit(self.limit)
         )
         return list(reversed(self.session.exec(stmt).all()))
 
     def clear_chat(self, token):
         self.delete_old()
-        self.session.execute(delete(ChatMessage).where(ChatMessage.token == token))
+        self.session.execute(delete(ChatMessage).where(col(ChatMessage.token) == token))
         self.session.commit()
 
     def delete_old(self):
         cutoff = datetime.now() - timedelta(days=self.expiry)
-        self.session.execute(delete(ChatMessage).where(ChatMessage.timestamp < cutoff))
+        self.session.execute(delete(ChatMessage).where(col(ChatMessage.timestamp) < cutoff))
         self.session.commit()
 
 

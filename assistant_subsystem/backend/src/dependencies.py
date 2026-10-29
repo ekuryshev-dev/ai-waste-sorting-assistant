@@ -5,23 +5,19 @@ import os
 from dotenv import load_dotenv
 from sqlmodel import Session
 from fastapi import Depends
+from pathlib import Path
+
 
 load_dotenv()
-db_url = os.getenv("DATABASE_URL")
-ai_api = os.getenv("OPENAI_API")
-ai_model = os.getenv("OPENAI_MODEL")
-ai_timeout = int(os.getenv("OPENAI_TIMEOUT"))
-message_limit = int(os.getenv("MESSAGE_LIMIT"))
-chat_expiry = int(os.getenv("CHAT_EXPIRY"))
-sys_prompt = os.getenv("SYSTEM_PROMPT")
 
-db_manager = DBManager(db_url)
-db_manager.create_tables()
+db_manager = DBManager(os.getenv("DATABASE_URL", "sqlite://"))
+sys_prompt = (Path(__file__).resolve().parent.parent / "sysprompt.txt").read_text(encoding="utf-8")
+
 
 def get_service(session: Session = Depends(db_manager.get_db)):
     return AssistantService(
         RulesRepo(session),
-        ChatRepo(session, chat_expiry, message_limit),
-        OpenAIClient(ai_model, ai_timeout, ai_api),
+        ChatRepo(session=session, expiry=1, limit=20),
+        OpenAIClient(model="gpt-4.1", timeout=20, api=os.getenv("OPENAI_API")),
         PromptBuilder(sys_prompt),
     )
