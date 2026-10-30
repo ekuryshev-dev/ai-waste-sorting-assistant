@@ -4,7 +4,7 @@ from llm_access_classes import LLMMockClient
 from uuid import uuid4
 
 
-def chat_history_get_and_clear(tst_sess):
+def test_chat_history_get_and_clear(tst_sess):
     service = AssistantService(RulesRepo(tst_sess), ChatRepo(tst_sess, 1, 10), LLMMockClient(), PromptBuilder("Mock prompt"))
     token = uuid4()
     service.converse(token, "Mock question")

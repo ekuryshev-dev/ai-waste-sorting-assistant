@@ -3,6 +3,7 @@ class PromptBuilder:
         self.system_prompt = system_prompt
 
     def rules_transfigure(self, rules):
+        if not rules: return "No rules available."
         lines = []
         for r in rules:
             line = f"- {r.region} | {r.material}: {r.category.name}"
@@ -12,8 +13,10 @@ class PromptBuilder:
         return "\n".join(lines)
 
     def build(self, history, rules, question):
-        system = f"{self.system_prompt}\n\nRecycling rules:\n{self.rules_transfigure(rules)}"
-        past = [{"role": m.role, "content": m.content} for m in history]
+        system = f"{self.system_prompt}"
+        if rules is not None:
+            system += f"\n\nRecycling rules:\n{self.rules_transfigure(rules)}"
+        past = [{"role": m.role, "content": m.content} for m in history] if history else []
         return [{"role": "system", "content": system}] + past + [{"role": "user", "content": question}]
 
 

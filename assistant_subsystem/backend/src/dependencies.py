@@ -21,3 +21,5 @@ def get_service(session: Session = Depends(db_manager.get_db)):
         OpenAIClient(model="gpt-4.1", timeout=20, api=os.getenv("OPENAI_API")),
         PromptBuilder(sys_prompt),
     )
+
+#one more service for the fallback classifier

@@ -7,12 +7,14 @@ class LLMClientInter(ABC):
 
 
 class LLMMockClient(LLMClientInter):
-    def __init__ (self):
-        self.reply = "Mock reply"
+    def __init__(self, reply = "Mock reply"):
+        self.reply = reply
         self.received = []
+        self.calls = 0
 
     def converse(self, messages):
         self.received = messages
+        self.calls += 1
         return self.reply
 
 
