@@ -1,8 +1,10 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from dependencies import db_manager
 from controller import router as chat_router
+from errors import LLMError
 
 
 @asynccontextmanager
@@ -21,6 +23,11 @@ app.add_middleware(
 )
 
 app.include_router(chat_router)
+
+
+@app.exception_handler(LLMError)
+async def llm_error_handler(request: Request, exc: LLMError):
+    return JSONResponse(status_code=502, content={"detail": "The assistant is unavailable right now. Please try again."})
 
 
 @app.get("/health")

@@ -18,8 +18,8 @@ def test_both_messages_are_processed(tst_sess):
     llm = LLMMockClient()
     service = AssistantService(RulesRepo(tst_sess), ChatRepo(tst_sess, 1, 10), llm, PromptBuilder("Mock prompt"))
     response = service.converse(uuid4(), "Mock question")
-    assert "Mock question" in llm.received[0]["content"]
-    assert "user" in llm.received[0]["role"]
+    assert "Mock question" in llm.received[-1]["content"]
+    assert "user" in llm.received[-1]["role"]
     assert response == "Mock reply"
 
 

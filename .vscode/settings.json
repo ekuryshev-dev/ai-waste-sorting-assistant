@@ -1,6 +1,11 @@
 {
   "python.analysis.extraPaths": [
     "assistant_subsystem/backend/src"
-  ]
+  ],
+  "python.testing.pytestArgs": [
+    "assistant_subsystem/backend/tests"
+  ],
+  "python.testing.cwd": "assistant_subsystem/backend",
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true
 }
-

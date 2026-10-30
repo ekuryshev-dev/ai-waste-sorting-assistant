@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Optional
 from uuid import UUID
@@ -17,7 +17,7 @@ class ChatMessage(SQLModel, table=True):
     token: UUID = Field(index=True)
     role: str
     content: str
-    timestamp: datetime = Field(default_factory=datetime.now, index=True)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), index=True)
 
 
 class RecyclingRule(SQLModel, table=True):
@@ -55,7 +55,7 @@ class ChatRepo:
         stmt = (
             select(ChatMessage)
             .where(col(ChatMessage.token) == token)
-            .order_by(col(ChatMessage.timestamp).desc())
+            .order_by(col(ChatMessage.timestamp).desc(), col(ChatMessage.id).desc())
             .limit(self.limit)
         )
         return list(reversed(self.session.exec(stmt).all()))
@@ -66,7 +66,7 @@ class ChatRepo:
         self.session.commit()
 
     def delete_old(self):
-        cutoff = datetime.now() - timedelta(days=self.expiry)
+        cutoff = datetime.now(timezone.utc) - timedelta(days=self.expiry)
         self.session.execute(delete(ChatMessage).where(col(ChatMessage.timestamp) < cutoff))
         self.session.commit()
 

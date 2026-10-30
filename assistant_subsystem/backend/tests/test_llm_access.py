@@ -11,7 +11,7 @@ def test_mock_records_received_messages():
     client = LLMMockClient()
     msgs = [{"role": "user", "content": "message"}]
     client.converse(msgs)
-    assert client.received == [msgs]
+    assert client.received == msgs
 
 
 def test_interface_cannot_be_instantiated():

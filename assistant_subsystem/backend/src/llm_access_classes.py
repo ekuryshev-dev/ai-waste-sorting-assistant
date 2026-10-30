@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+from openai import OpenAI, OpenAIError
+from errors import LLMError
 
 
 class LLMClientInter(ABC):
@@ -19,10 +21,13 @@ class LLMMockClient(LLMClientInter):
 
 
 class OpenAIClient(LLMClientInter):
-    def __init__ (self, model, timeout, api):
+    def __init__(self, model, timeout, api):
         self.model = model
-        self.timeout = timeout
-        self.api = api
+        self.client = OpenAI(api_key=api, timeout=timeout)
 
     def converse(self, messages):
-        raise NotImplementedError("Real API call comes later")
+        try:
+            response = self.client.chat.completions.create(model=self.model, messages=messages)
+        except OpenAIError as e:
+            raise LLMError(str(e)) from e
+        return response.choices[0].message.content or ""
