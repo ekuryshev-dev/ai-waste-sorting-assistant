@@ -19,6 +19,16 @@ class ImageFallbackClassifier:
         self.prompt_builder = prompt_builder
         self.max_retries = max_retries
 
+    @property
+    def max_retries(self):
+        return self._max_retries
+
+    @max_retries.setter
+    def max_retries(self, value):
+        if value < 0:
+            raise ValueError("max_retries must be 0 or more")
+        self._max_retries = value
+
     def classify(self, image, mime_type = "image/jpeg", region = None):
         messages = self.build_messages(image, mime_type, region)
         for _ in range(self.max_retries + 1):

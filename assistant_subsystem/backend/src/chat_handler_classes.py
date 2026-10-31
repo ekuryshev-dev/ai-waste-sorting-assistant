@@ -2,6 +2,16 @@ class PromptBuilder:
     def __init__(self, system_prompt):
         self.system_prompt = system_prompt
 
+    @property
+    def system_prompt(self):
+        return self._system_prompt
+
+    @system_prompt.setter
+    def system_prompt(self, value):
+        if not isinstance(value, str):
+            raise TypeError("system_prompt must be a string")
+        self._system_prompt = value
+
     def rules_transfigure(self, rules):
         if not rules: return "No rules available."
         lines = []

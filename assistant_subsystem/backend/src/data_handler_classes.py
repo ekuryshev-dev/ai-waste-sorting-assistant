@@ -45,6 +45,26 @@ class ChatRepo:
         self.expiry = expiry
         self.limit = limit
 
+    @property
+    def expiry(self):
+        return self._expiry
+
+    @expiry.setter
+    def expiry(self, value):
+        if value <= 0:
+            raise ValueError("expiry must be more than 0 days")
+        self._expiry = value
+
+    @property
+    def limit(self):
+        return self._limit
+
+    @limit.setter
+    def limit(self, value):
+        if value <= 0:
+            raise ValueError("limit must be more than 0")
+        self._limit = value
+
     def add_new(self, token, role, content):
         self.delete_old()
         self.session.add(ChatMessage(token=token, role=role, content=content))

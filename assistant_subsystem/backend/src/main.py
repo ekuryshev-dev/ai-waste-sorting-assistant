@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 from dependencies import db_manager
 from controller import router as chat_router
 from errors import LLMError
+import logging
 
 
 @asynccontextmanager
@@ -27,7 +28,8 @@ app.include_router(chat_router)
 
 @app.exception_handler(LLMError)
 async def llm_error_handler(request: Request, exc: LLMError):
-    return JSONResponse(status_code=502, content={"detail": "The assistant is unavailable right now. Please try again."})
+    logging.getLogger(__name__).error("LLM error: %s", exc)
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.user_message})
 
 
 @app.get("/health")
