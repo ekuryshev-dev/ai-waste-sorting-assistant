@@ -1,0 +1,5 @@
+backend/.env
+backend/*.db
+backend/tests/.pytest_temp_*/
+**/__pycache__/
+*.pyc

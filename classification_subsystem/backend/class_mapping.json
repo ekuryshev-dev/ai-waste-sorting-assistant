@@ -1,0 +1,8 @@
+{
+  "model_classes": {
+    "battery": "battery", "biological": "biological", "brown-glass": "brown-glass",
+    "cardboard": "cardboard", "clothes": "clothes", "green-glass": "green-glass",
+    "metal": "metal", "paper": "paper", "plastic": "plastic", "shoes": "shoes",
+    "trash": "trash", "white-glass": "white-glass"
+  }
+}
