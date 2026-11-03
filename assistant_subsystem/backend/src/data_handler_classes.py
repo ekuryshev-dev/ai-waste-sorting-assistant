@@ -6,10 +6,10 @@ from sqlmodel import Field, Session, SQLModel, create_engine, delete, select, co
 
 
 class Category(str, Enum):
-    unknown = "unk"
-    recyclable = "rec"
-    compostable = "com"
-    landfill = "lan"
+    unknown = "unknown"
+    recyclable = "recyclable"
+    compostable = "compostable"
+    landfill = "landfill"
     
 
 class ChatMessage(SQLModel, table=True):

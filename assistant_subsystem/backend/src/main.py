@@ -6,6 +6,7 @@ from dependencies import db_manager
 from controller import router as chat_router
 from errors import LLMError
 import logging
+from fallback_controller import router as fallback_router
 
 
 @asynccontextmanager
@@ -24,6 +25,7 @@ app.add_middleware(
 )
 
 app.include_router(chat_router)
+app.include_router(fallback_router)
 
 
 @app.exception_handler(LLMError)
