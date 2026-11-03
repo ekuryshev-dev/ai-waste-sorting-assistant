@@ -38,7 +38,9 @@ Each box is a package that matches a file in `assistant_subsystem/backend/src`: 
 
 **Description:**
 The subsystem accepts a waste photo and a city. A pretrained ResNet50 classifies the image into one of 12 model labels, which are mapped to the materials used by our regional rules. DisposalRecommendationEngine retrieves the category and disposal instruction from our separate Neon table. If CV confidence is too low, the subsystem can ask the assistant service to return a material from the list available for that city. If no material can be identified, it asks the user for another photo. When analytics is configured, it receives the material, category and region, without the recommendation text.
+
 **Class diagram:**
+![Class diagram](docs/classification_class_diagram.png)
 
 ### Dashboard subsystem
 
