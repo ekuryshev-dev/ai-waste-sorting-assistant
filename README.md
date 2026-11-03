@@ -44,7 +44,7 @@ Each box is a package that matches a file in `assistant_subsystem/backend/src`: 
 **Description:**
 The dashboard block provides statistics for municipalities and responsible for collecting, processing, and presenting waste classification statistics for different regions. It reads the stored waste data and shows clear metrics and visualisations about waste composition as well as recycling-related rates.
 
-**Class diagram:**
+![Class diagram](docs/Dashboard_ClassDiagram.png)
 
 
 
@@ -118,6 +118,7 @@ Error classes in `errors.py` (`LLMError`, `LLMBusyError`, `LLMTimeoutError`), an
 
 **Hometask 2 (Real-time data processing)**
 [TO ADD]
+
 **Hometask 3 (Web API and database)**
 
 
