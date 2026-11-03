@@ -21,6 +21,7 @@ class ChatMessage(SQLModel, table=True):
 
 
 class RecyclingRule(SQLModel, table=True):
+    __tablename__ = "classification_recycling_rules"  # type: ignore
     id: Optional[int] = Field(default=None, primary_key=True)
     region: str = Field(index=True)
     material: str
