@@ -42,6 +42,8 @@ Each box is a package that matches a file in `assistant_subsystem/backend/src`: 
 ### Dashboard subsystem
 
 **Description:**
+The dashboard block provides statistics for municipalities and responsible for collecting, processing, and presenting waste classification statistics for different regions. It reads the stored waste data and shows clear metrics and visualisations about waste composition as well as recycling-related rates.
+
 **Class diagram:**
 
 
@@ -107,3 +109,16 @@ Error classes in `errors.py` (`LLMError`, `LLMBusyError`, `LLMTimeoutError`), an
 ### Classification Subsystem
 
 ### Dashboard Subsystem
+
+**Hometask 1 (OOP) — Waste Analytics Subsystem**
+
+- **Constructors:** All seven main classes initialize their own state in `__init__`, for example `WasteRecord(item, category, region_code, record_id=None, created_at=None)`, `WasteRepository()`, `WasteAnalyticsService(repository)`, `AnalyticsController(service)`, and `Dashboard(controller, region_code)`. The `StatisticsSummary` and `TrendPoint` constructors initialize the calculated analytics data.
+- **Initialization methods:** `WasteRepository.__init__()` initializes an empty list of records. `WasteRecord.__init__()` automatically generates a unique UUID and a creation timestamp when these are not provided. `main()` creates and connects the Repository, Service, Controller, and Dashboard objects using dependency injection.
+- **Encapsulation (getters and setters):** `WasteRecord` provides getters for its five attributes and setters for `item`, `category`, and `region_code`, while keeping the ID and creation timestamp read-only through its public methods. `StatisticsSummary` and `TrendPoint` provide getters and setters for their analytics values. `AnalyticsController` encapsulates `service`, and `Dashboard` encapsulates `controller` and `region_code`. `WasteAnalyticsService` encapsulates its repository dependency using `get_repository()` and `set_repository()`.
+
+**Hometask 2 (Real-time data processing)**
+[TO ADD]
+**Hometask 3 (Web API and database)**
+
+
+**Hometask 4 (Exceptions and tests)**
