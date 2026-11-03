@@ -37,6 +37,7 @@ Each box is a package that matches a file in `assistant_subsystem/backend/src`: 
 ### Classification subsystem
 
 **Description:**
+The subsystem accepts a waste photo and a city. A pretrained ResNet50 classifies the image into one of 12 model labels, which are mapped to the materials used by our regional rules. DisposalRecommendationEngine retrieves the category and disposal instruction from our separate Neon table. If CV confidence is too low, the subsystem can ask the assistant service to return a material from the list available for that city. If no material can be identified, it asks the user for another photo. When analytics is configured, it receives the material, category and region, without the recommendation text.
 **Class diagram:**
 
 ### Dashboard subsystem
@@ -82,7 +83,23 @@ docker run --rm assistant-subsystem pytest /app/tests
 ```
 
 ### Classification Subsystem
+1. From the repository root, install the dependencies and set your Neon connection string:
 
+```powershell
+python -m pip install -r classification_subsystem/backend/requirements.txt
+$env:REGIONAL_RULES_DB_URL = "<your Neon connection string>"
+python -m uvicorn classification_subsystem.backend.src.main:app --port 8001
+```
+
+2. Open `http://127.0.0.1:8001/docs` for the API. `GET /classification/regions` lists supported cities. `POST /classification/recommend` accepts a multipart image and region. The regional rules are stored in the separate `classification_recycling_rules` table.
+
+3. Run the tests from the repository root:
+
+```powershell
+python -m pytest -q classification_subsystem/backend/tests
+```
+
+`ASSISTANT_FALLBACK_URL`, `ANALYTICS_URL` and `ANALYTICS_INGEST_KEY` enable the optional teammate connections after their service URLs and contracts are agreed. The model weights come from [ResNet50 Garbage Classification v1.2](https://huggingface.co/kendrickfff/my_resnet50_garbage_classificationv1.2).
 ### Dashboard Subsystem
 
 
@@ -107,7 +124,18 @@ Error classes in `errors.py` (`LLMError`, `LLMBusyError`, `LLMTimeoutError`), an
 
 
 ### Classification Subsystem
+**Hometask 1 (OOP)**
+- **Constructors and methods:** `WasteClassifier` loads and runs the CV model; `RegionalRulesService` reads regional rules; `DisposalRecommendationEngine` coordinates classification and recommendation.
+- **Initialization and encapsulation:** The model is loaded by `WasteClassifier.load_model()`. Properties validate `WasteClassifier.model_path`, `RegionalRulesService.db_url` and `DisposalRecommendationEngine.confidence_threshold`.
 
+**Hometask 2 (Real-time data processing)**
+- `conveyor_pipeline.py` contains a separate conveyor-event example with an abstract `StreamProcessor`, filtering and routing subclasses, the `|` operator for building a pipeline, and the `PredictionStream` iterator and generator. This example is separate from the photo API.
+
+**Hometask 3 (Web API and database)**
+- FastAPI provides `/health`, `/classification/regions` and `/classification/recommend`. SQLModel reads regional recommendations from the subsystem's Neon table. The supplied dataset contains 120 rules for 10 German cities.
+
+**Hometask 4 (Exceptions and tests)**
+- `errors.py` defines classification, invalid-image and missing-rule exceptions. Pytest covers the CV path, fallback behavior, regional rules, API validation and the conveyor example in `classification_subsystem/backend/tests`.
 ### Dashboard Subsystem
 
 **Hometask 1 (OOP) — Waste Analytics Subsystem**
