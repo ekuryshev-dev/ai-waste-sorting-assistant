@@ -74,14 +74,69 @@ To be added.
 
 **Responsible:** Anastasiia Shovkova
 
+At this stage, the subsystem collects and analyzes classified waste records using object-oriented Python classes. It calculates waste category distribution, recyclable share, overall statistics, and daily trends for a selected region.
+
+For Hometask 1, the subsystem uses an in-memory repository and displays the results in a console-based Dashboard. 
+
 #### Classes
 
-To be added.
+- `Category` defines four waste categories: recyclable, compostable, landfill, and unknown.
+
+- `WasteRecord` represents a classified waste item with its category, region code, unique ID, and creation timestamp.
+
+- `WasteRepository` stores waste records in memory and provides methods to add, retrieve, and filter records by region.
+
+- `WasteAnalyticsService` calculates category distribution, recycling statistics, and daily trends.
+
+- `StatisticsSummary` stores the total number of records, category percentages, and recycling rate.
+
+- `TrendPoint` stores daily counts for the four waste categories.
+
+- `AnalyticsController` connects the Dashboard to the analytics service and provides access to statistics and trends.
+
+- `Dashboard` displays waste statistics, category distribution, recycling rate, and trends in the console.
+
+#### Object-Oriented Concepts
+
+**Constructors (__init__):** Initialize class attributes and dependencies.
+
+**Encapsulation:** Class attributes are accessed and modified through getter and setter methods.
+
+**Dependency Injection:** Repository, Service, and Controller objects are provided through constructors.
+
+**Separation of Responsibilities:** Data storage, analytics calculations, application control, and presentation are handled by separate classes.
+
+The recycling rate represents the percentage of recognized items classified as recyclable, not the actual municipal recycling rate.
 
 #### Class Diagram
 
-To be added.
+![Waste Analytic & Dashboard Subsystem — Hometask 1 UML Class Diagram](docs/dashboard_hometask_1_class_diagram.png)
+
+#### Model 
+
+The Waste Analytics Subsystem does not use a machine learning model. It processes waste classification results provided by the Waste Classification & Sorting Subsystem.
+
+The subsystem uses object-oriented data models such as WasteRecord, StatisticsSummary, and TrendPoint to represent waste records and analytical results. WasteAnalyticsService calculates category distribution, recyclable share, and daily trends.
+
+For Hometask 1, the data is stored in an in-memory WasteRepository.
 
 #### Run
 
-To be added.
+From the repository root, install the dependencies:
+
+```python -m pip install -r dashboard_subsystem/requirements.txt```
+
+Run the console demonstration:
+```
+cd dashboard_subsystem
+python -m waste_analytics.main
+```
+The demonstration creates a waste record for a recyclable bottle in Dortmund and displays the calculated statistics.
+
+**Tests**
+
+From the dashboard_subsystem directory:
+
+```python -m pytest tests/test_waste_analytics.py -v```
+
+All 7 unit tests passed, covering category distribution, statistics, region filtering, trends, empty data, and repository operations.
