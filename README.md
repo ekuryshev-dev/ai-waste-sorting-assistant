@@ -90,6 +90,7 @@ python assistant_subsystem/demo.py
 ```
 
 The demo runs a mock chat, shows and clears the history, classifies a fake image and changes `max_retries` through its setter.
+
 ---
 ### Waste Analytics & Dashboard Subsystem
 
