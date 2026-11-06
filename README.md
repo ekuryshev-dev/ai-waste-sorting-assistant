@@ -52,7 +52,7 @@ The Hometask 2 stream reuses `ImageProcessor`, `WasteClassifier` and the `Classi
 
 #### Class Diagram
 
-To be added.
+![Waste Classification & Sorting Subsystem — Hometask 2 UML Class Diagram](docs/classification_class_diagram_HW2.png)
 
 #### Model & Data
 
