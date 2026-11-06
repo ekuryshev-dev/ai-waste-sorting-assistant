@@ -3,6 +3,7 @@ from enum import Enum
 from typing import Optional
 from uuid import UUID
 from sqlmodel import Field, Session, SQLModel, create_engine, delete, select, col
+from sqlalchemy.pool import StaticPool
 
 
 class Category(str, Enum):
@@ -94,7 +95,10 @@ class ChatRepo:
 
 class DBManager:
     def __init__(self, db_url):
-        self.engine = create_engine(db_url, echo=False, pool_pre_ping=True)
+        if db_url.startswith("sqlite"):
+            self.engine = create_engine(db_url, connect_args={"check_same_thread": False}, poolclass=StaticPool)
+        else:
+            self.engine = create_engine(db_url, echo=False, pool_pre_ping=True)
 
     def create_tables(self):
         SQLModel.metadata.create_all(self.engine)
