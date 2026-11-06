@@ -69,19 +69,92 @@ Open `http://127.0.0.1:8001/docs`. `GET /classification/regions` returns the reg
 
 **Responsible:** Anastasiia Shovkova
 
-To be added.
+In Hometask 3, the Waste Analytics Subsystem adds database persistence using SQLModel and PostgreSQL (Neon). Previously, waste records were stored in an in-memory repository. Now, the subsystem can store and retrieve records from a database.
+
+The subsystem also provides FastAPI endpoints for adding waste records, retrieving available regions, calculating category distributions, recyclable share, and daily trends.
+
+Incoming records pass through the validation and analytics pipeline implemented in Hometask 2 before being saved. The analytics functionality from Hometask 1 is reused to calculate statistics from stored records.
 
 #### Classes
 
-To be added.
+**Retained from Hometasks 1 and 2**
+
+- `Category` defines four waste categories: `recyclable`, `compostable`, `landfill`, and `unknown`.
+- `WasteRecord` represents a classified waste item with its category, region, ID, and creation timestamp.
+- `WasteRepository` provides in-memory record storage and retrieval.
+- `WasteAnalyticsService` calculates category distribution, recyclable share, statistics, and daily trends.
+- `StatisticsSummary` stores calculated statistics for a region.
+- `TrendPoint` represents daily category counts.
+- `AnalyticsController` connects the analytics service to the Dashboard.
+- `Dashboard` displays analytics results.
+- `StreamProcessor` defines the abstract `process()` method and supports operator overloading.
+- `AnalyticsPipeline` combines stream processors and executes them sequentially.
+- `ValidationProcessor` validates incoming waste records.
+- `AnalyticsProcessor` saves validated records through a repository.
+- `WasteEventStream` implements an iterator for processing records one at a time.
+- `AnalyticsConnectionManager` manages WebSocket connections and sends analytics update notifications.
+
+**Added in Hometask 3**
+
+- `WasteRecordRow` represents a database record using SQLModel and maps to the `analytics_waste_records` table.
+- `SQLWasteRepository` implements database operations for adding, retrieving, and filtering waste records.
+- `NewRecord` defines and validates the input data received by the FastAPI endpoint.
+
+The `database.py` module configures the database engine and sessions. It supports PostgreSQL through Neon and local SQLite for testing.
+
+The `api.py` module exposes FastAPI endpoints and connects the API, processing pipeline, SQL repository, and analytics service.
 
 #### Class Diagram
 
 To be added.
 
+#### Model
+
+The Waste Analytics Subsystem does not use a separate machine learning model. It receives waste classification results and processes them for statistical analysis.
+
+Records are stored using SQLModel. PostgreSQL (Neon) is used for persistent storage, while SQLite provides a local alternative for testing without external database credentials.
+
+The stored data includes the classified item, waste category, region code, record ID, and timestamp.
+
 #### Run
 
-To be added.
+From the repository root, install the dependencies:
+
+```powershell
+cd dashboard_subsystem
+python -m pip install -r requirements.txt
+```
+
+For local testing with SQLite (Windows PowerShell):
+
+```powershell
+$env:USE_SQLITE="1"
+python -m uvicorn waste_analytics.api:app --reload
+```
+
+Open the interactive API documentation:
+
+`http://127.0.0.1:8000/docs`
+
+Available endpoints:
+
+- `GET /health` — checks API health.
+- `POST /analytics/records` — validates and saves a waste record.
+- `GET /analytics/regions` — returns available regions.
+- `GET /analytics/{region_code}/statistics` — returns analytics statistics for a region.
+- `GET /analytics/{region_code}/trends` — returns daily waste classification trends.
+
+If API-key protection is enabled, POST requests require the configured `x-analytics-key` header. Database credentials and secrets must not be committed to GitHub.
+
+To run the tests:
+
+```powershell
+python -m pytest tests -v
+```
+
+**Test result:** 15 passed, 1 warning.
+
+The API was also tested locally with SQLite. Records can be created through FastAPI and retrieved through the statistics endpoints.
 
 ---
 
