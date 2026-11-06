@@ -162,16 +162,34 @@ The API was also tested locally with SQLite. Records can be created through Fast
 
 **Responsible:** Illia Parkhomenko
 
-To be added.
+In Hometask 3, the subsystem becomes a FastAPI application. It exposes the chat (`POST`, `GET` and `DELETE /chat/{token}`) and the photo fallback (`POST /fallback/classify`), which the Classification subsystem calls when the CV model is uncertain. Chat history and rules are stored through SQLModel in Neon/PostgreSQL, and the rules come from the `classification_recycling_rules` table shared with the Classification subsystem. Without `DATABASE_URL` the application uses an in-memory SQLite database, and without `OPENAI_API` it uses the mock client, so it starts without any credentials.
 
 #### Classes
 
-To be added.
+**Retained from Hometask 1**
+
+`LLMClientInter`, `OpenAIClient`, `LLMMockClient`, `PromptBuilder`, `AssistantService`, `ChatRepo`, `ChatMessage`, `RulesRepo`, `RecyclingRule`, `Category`, `ImageFallbackClassifier`, `FallbackResult` and `DBManager`. `RecyclingRule` now maps to the shared rules table, and `DBManager` keeps one shared connection for SQLite so the in-memory database works across request threads.
+
+**Added in Hometask 3**
+
+- `DTOin` validates the chat request body (1 to 500 characters).
+- `DTOout` is a chat message returned by the API (`role`, `content`).
+- `FallbackOut` is the response of `/fallback/classify`.
 
 #### Class Diagram
 
-To be added.
+![AI Assistant Subsystem UML Class Diagram](docs/assistant_class_diagram_HW1.png)
+
+The diagram is unchanged from Hometask 1. The three classes above are Pydantic schemas for the API and are not shown.
 
 #### Run
 
-To be added.
+From the repository root:
+
+```powershell
+cd assistant_subsystem/backend
+docker build -t assistant-subsystem .
+docker run -p 8000:8000 assistant-subsystem
+```
+
+Open `http://127.0.0.1:8000/docs`. This starts with the mock AI and an in-memory database. To use the real services, add `-e DATABASE_URL="<Neon connection string>" -e OPENAI_API="<OpenAI key>"` to the `docker run` command, and never commit these values.
