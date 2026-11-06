@@ -73,3 +73,79 @@ python demo_hw2.py
 The demo reads supported images from `examples` one at a time and prints the total and accepted counts. On every run, it replaces `output/all_predictions.jsonl` with all predictions and `output/accepted_predictions.jsonl` with predictions at or above the 70% confidence threshold. Each JSON line contains `image_id`, `class`, `confidence` and `above_threshold`; it does not contain a disposal recommendation.
 
 ---
+
+### Waste Analytics & Dashboard Subsystem
+
+**Responsible:** Anastasiia Shovkova
+
+At this stage, the subsystem processes waste classification records as a stream of events. It validates each record through a processing pipeline, stores accepted records in an in-memory repository, and supports real-time analytics notifications through WebSocket connections. The implementation demonstrates abstract classes, inheritance, polymorphism, operator overloading, iterators, and generators.
+
+#### Classes
+
+**Retained from Hometask 1**
+
+- `Category` defines four waste categories: `recyclable`, `compostable`, `landfill`, and `unknown`.
+- `WasteRecord` holds the classified item, category, region code, unique ID, and creation timestamp.
+- `WasteRepository` stores records in memory and provides methods to add, retrieve, and filter records.
+- `WasteAnalyticsService` calculates category distribution, recyclable share, statistics, and daily trends.
+- `StatisticsSummary` holds the calculated statistics for a selected region.
+- `TrendPoint` represents waste category counts for a specific date.
+- `AnalyticsController` provides access to the analytics service.
+- `Dashboard` displays analytics results in the console.
+
+**Added in Hometask 2**
+
+- `StreamProcessor` is an abstract base class that defines the `process()` method and supports pipeline composition with the `|` operator.
+- `AnalyticsPipeline` combines two stream processors and executes them sequentially.
+- `ValidationProcessor` checks incoming waste records and rejects invalid data.
+- `AnalyticsProcessor` saves validated records through the repository.
+- `WasteEventStream` implements `__iter__()` and `__next__()` to process waste records one at a time.
+- `AnalyticsConnectionManager` manages WebSocket connections and broadcasts analytics update notifications.
+
+The Hometask 2 stream processing uses `ValidationProcessor` and `AnalyticsProcessor`. The `|` operator creates an `AnalyticsPipeline`, allowing records to pass through validation before being saved.
+
+The `generate_events(stream)` function uses `yield` to produce records one at a time. It is a module-level generator function, not a class method.
+
+#### Class Diagram
+
+![Waste Analytics & Dashboard Subsystem — Hometask 2 UML Class Diagram](dashboard_subsystem/docs/hometask2_class_diagram.png)
+
+#### Model & Data
+
+The Waste Analytics Subsystem does not use a separate machine learning model. It processes classification results represented as `WasteRecord` objects.
+
+The demonstration includes four waste records representing different disposal categories and regions. Valid records are processed through the pipeline and saved in an in-memory `WasteRepository`.
+
+The `AnalyticsConnectionManager` supports asynchronous WebSocket notifications using the `analytics_updated` event. WebSocket API integration is handled separately by the FastAPI application.
+
+#### Run
+
+From the repository root, activate your Python environment and run:
+
+```powershell
+cd dashboard_subsystem
+python -m pip install -r requirements.txt
+python -m waste_analytics.pipeline_demo
+```
+
+The demo processes four records through the validation and analytics pipeline.
+
+Expected output:
+
+```text
+Processed: Plastic bottle
+Processed: Banana peel
+Processed: Diaper
+Processed: Unknown object
+Total records: 4
+```
+
+To run the Hometask 2 tests:
+
+```powershell
+python -m pytest tests/test_pipeline.py -v
+```
+
+The three tests verify invalid-record rejection, iterator behavior, and pipeline processing with a generator.
+
+**Test result:** 3 passed.
