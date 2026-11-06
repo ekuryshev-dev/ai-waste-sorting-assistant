@@ -58,17 +58,38 @@ python demo.py examples/cardboard.jpg --region Bochum
 
 **Responsible:** Illia Parkhomenko
 
+At this stage, the subsystem implements an educational AI chat about waste and recycling, and a one-shot fallback that classifies a photo when the CV model is not confident. The language model sits behind an abstract interface, so a mock client can replace the real one. The demo uses the mock client and an in-memory SQLite database, so it needs no API key or setup.
+
 #### Classes
 
-To be added.
+- `LLMClientInter` is the abstract interface with one `converse()` method.
+- `OpenAIClient` sends messages to the OpenAI API. Its `model` and `timeout` have validating getters and setters.
+- `LLMMockClient` returns a fixed reply and records the messages it received, for demos and tests.
+- `PromptBuilder` builds the message list from the system prompt, chat history, recycling rules and the question. Its `system_prompt` has a getter and a validating setter.
+- `AssistantService` coordinates the chat: it loads the history and rules, asks the model, saves both messages, and returns or clears the history.
+- `ChatRepo` stores, reads and deletes chat messages. Its `expiry` and `limit` have validating getters and setters.
+- `ChatMessage` is a stored message with a token, role, content and timestamp.
+- `RulesRepo` reads recycling rules from the database, optionally for one region.
+- `RecyclingRule` represents one regional rule.
+- `Category` defines `unknown`, `recyclable`, `compostable` and `landfill`.
+- `ImageFallbackClassifier` sends one image to the model, parses the JSON reply and retries when the reply is invalid or `unknown`. Its `max_retries` has a validating getter and setter.
+- `FallbackResult` holds the category, material and instructions of the fallback.
+- `DBManager` creates the database engine and tables and provides database sessions.
 
 #### Class Diagram
 
-To be added.
+![AI Assistant Subsystem — Hometask 1 UML Class Diagram](docs/assistant_class_diagram_HW1.png)
 
 #### Run
 
-To be added.
+From the repository root:
+
+```powershell
+python -m pip install -r assistant_subsystem/backend/requirements.txt
+python assistant_subsystem/demo.py
+```
+
+The demo runs a mock chat, shows and clears the history, classifies a fake image and changes `max_retries` through its setter.
 ---
 ### Waste Analytics & Dashboard Subsystem
 
