@@ -29,4 +29,4 @@ These are the model's output labels. The model predicts one label for the whole 
 
 The image should show the item clearly, preferably as the main object with good lighting. For inference with the included weights in this repository, the expected input is a **224 × 224 RGB image**, normalized with the ImageNet mean and standard deviation. The [model card](https://huggingface.co/kendrickfff/my_resnet50_garbage_classificationv1.2) mentions resizing, cropping and normalization during training and validation, but does **not** state an exact mandatory image size or normalization values. The 224 × 224 size and normalization values are the settings of this repository's inference code, not a published hard limit of ResNet50 itself.
 
-The model can only choose among the 12 labels listed above. The model alone does not know local German sorting rules; those rules are stored separately in regional_rules_2026.json.
+The model can only choose among the 12 labels listed above. The model alone does not know local German sorting rules; the application reads those rules separately from its regional-rules database table.

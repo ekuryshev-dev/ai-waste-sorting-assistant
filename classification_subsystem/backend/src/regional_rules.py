@@ -1,38 +1,35 @@
-import json
-from pathlib import Path
+from sqlmodel import Session, create_engine, select
 
-from .models import Category
+from .models import Category, RecyclingRule
 
 
 class RegionalRulesService:
-    """Read disposal rules from a JSON file."""
+    """Read disposal rules from our table in Neon/PostgreSQL."""
 
-    def __init__(self, rules_path: Path):
-        self.set_rules_path(rules_path)
+    def __init__(self, db_url: str):
+        self.set_db_url(db_url)
 
-    def get_rules_path(self) -> Path:
-        return self._rules_path
+    def get_db_url(self) -> str:
+        return self._db_url
 
-    def set_rules_path(self, value: Path) -> None:
-        path = Path(value)
-        if not path.is_file():
-            raise FileNotFoundError(path)
-        self._rules_path = path
-        self.load_rules()
-
-    def load_rules(self) -> None:
-        rows = json.loads(self.get_rules_path().read_text(encoding="utf-8"))
-        self.rules = rows
+    def set_db_url(self, value: str) -> None:
+        self._db_url = value
+        connection_url = value.replace("postgresql://", "postgresql+psycopg://", 1)
+        connection_url = connection_url.replace("postgres://", "postgresql+psycopg://", 1)
+        self.engine = create_engine(connection_url, pool_pre_ping=True)
 
     def list_regions(self) -> list[str]:
-        regions = []
-        for row in self.rules:
-            if row["region"] not in regions:
-                regions.append(row["region"])
-        return sorted(regions)
+        with Session(self.engine) as session:
+            statement = select(RecyclingRule.region).distinct().order_by(RecyclingRule.region)
+            return list(session.exec(statement))
 
     def get_rule(self, material: str, region: str) -> tuple[Category, str]:
-        for row in self.rules:
-            if row["region"] == region and row["material"] == material:
-                return Category(row["category"]), row["instructions"]
-        raise KeyError((region, material))
+        with Session(self.engine) as session:
+            statement = select(RecyclingRule).where(
+                RecyclingRule.material == material,
+                RecyclingRule.region == region,
+            )
+            rule = session.exec(statement).first()
+            if rule is None:
+                raise KeyError((region, material))
+            return rule.category, rule.instructions or ""
