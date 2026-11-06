@@ -1,3 +1,10 @@
 pytest
 pandas
 fastapi
+uvicorn
+sqlmodel
+sqlalchemy
+pydantic
+pg8000
+python-dotenv
+httpx
