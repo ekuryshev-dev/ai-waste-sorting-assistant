@@ -67,10 +67,6 @@ To be added.
 
 To be added.
 
-#### Model
-
-To be added.
-
 #### Run
 
 To be added.
@@ -81,22 +77,91 @@ To be added.
 
 **Responsible:** Illia Parkhomenko
 
-To be added.
+In Hometask 4, the subsystem adds error handling and automated tests to the chat assistant and the image fallback classifier built in Hometasks 1–3. Failures of the language model are translated into three custom exceptions derived from `LLMError`. The chat endpoint turns them into a clear HTTP error, and the image fallback returns the `unknown` category instead of failing.
 
-#### Classes
+#### Error Handling
 
-To be added.
+| Exception | Raised when | HTTP status |
+|---|---|---|
+| `LLMError` | any other model error, or an empty reply | `502` |
+| `LLMBusyError` | the model rate limit is reached | `503` |
+| `LLMTimeoutError` | the model does not answer in time | `504` |
+
+`OpenAIClient` translates the OpenAI SDK errors into these classes. Each class carries its status code and a user-facing message, and a single handler in `main.py` returns them to the client. `ImageFallbackClassifier` catches `LLMError` and returns `unknown`, so a model failure never breaks the photo flow.
 
 #### Class Diagram
 
-To be added.
+![Assistant subsystem class diagram](docs/assistant_class_diagram_HW4.png)
+
+#### Tests
+
+Eighteen tests use a mock language model and an in-memory SQLite database, so they need no API key or network.
+
+1. The chat history is saved, returned and cleared.
+2. The user question reaches the model and the reply is returned.
+3. The prompt is built from the system prompt and the recycling rules.
+4. The chat endpoint returns the assistant reply.
+5. A valid model reply returns the category and instructions.
+6. JSON wrapped in other text is still found.
+7. An invalid reply is retried and then returns `unknown`.
+8. The rules and the image reach the model.
+9. The history is returned oldest first and respects the limit.
+10. Clearing a chat removes only that session.
+11. The chat endpoint returns status `504` when the model times out.
+12. The fallback returns `unknown` when the model fails.
+13. The fallback endpoint returns the classification JSON.
+14. The fallback endpoint rejects non-image files with status `415`.
+15. The mock client returns a fixed reply.
+16. The mock client records the received messages.
+17. The abstract client interface cannot be instantiated.
+18. A negative `max_retries` value is rejected.
+
+#### Test Coverage
+
+Measured with `pytest-cov`: **86 % of the subsystem (278 of 323 statements)** is covered.
+
+| File | Statements | Missed | Coverage |
+|---|---|---|---|
+| `cv_fallback_classes.py` | 48 | 0 | 100 % |
+| `errors.py` | 9 | 0 | 100 % |
+| `chat_handler_classes.py` | 44 | 2 | 95 % |
+| `fallback_controller.py` | 19 | 1 | 95 % |
+| `data_handler_classes.py` | 79 | 6 | 92 % |
+| `controller.py` | 20 | 2 | 90 % |
+| `main.py` | 24 | 3 | 88 % |
+| `dependencies.py` | 25 | 6 | 76 % |
+| `llm_access_classes.py` | 55 | 25 | 55 % |
+| **Total** | **323** | **45** | **86 %** |
+
+The retry logic of the fallback classifier and the exception classes are fully covered. The uncovered code is mostly the real `OpenAIClient` (property validation and the translation of OpenAI errors) and the startup code in `dependencies.py` that runs only when `OPENAI_API` is set. These parts need a real API key and network access, so the tests use the mock client instead.
 
 #### Model
 
-To be added.
+The assistant uses the OpenAI `gpt-6-luna` model through the OpenAI SDK for both the chat and the image fallback. Without the `OPENAI_API` variable, the subsystem works with a mock client and an in-memory SQLite database.
 
 #### Run
 
-To be added.
+From the repository root, install the dependencies and run the 18 tests:
+
+```powershell
+cd assistant_subsystem/backend
+python -m pip install -r requirements.txt
+python -m pytest
+```
+
+To measure the test coverage:
+
+```powershell
+python -m pytest --cov=src --cov-report=term-missing
+```
+
+To run the tests in Docker:
+
+```powershell
+docker build -t assistant-subsystem .
+docker run --rm assistant-subsystem pytest /app/tests
+```
+
+The tests do not require service credentials.
 
 ---
