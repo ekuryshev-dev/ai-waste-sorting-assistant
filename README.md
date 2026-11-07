@@ -186,6 +186,8 @@ Run all tests with coverage:
 
 The local test configuration uses SQLite and does not require Neon database credentials.
 
+---
+
 ### AI Assistant Subsystem
 
 **Responsible:** Illia Parkhomenko
