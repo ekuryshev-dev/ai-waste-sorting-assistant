@@ -46,7 +46,7 @@ The new FastAPI endpoint accepts an image and region and returns the recommendat
 
 #### Class Diagram
 
-To be added.
+![Waste Classification & Sorting Subsystem — Hometask 3 UML Class Diagram](docs/classification_class_diagram_HW3.png)
 
 #### Model
 
