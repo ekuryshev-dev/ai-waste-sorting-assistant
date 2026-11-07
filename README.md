@@ -8,6 +8,13 @@
 > 
 > Create your project at the github and apply the link your project. Add your indentification and update the readme file with the project information.
 ---
+
+### Team Video Presentation
+
+[Watch the Hometask 3 team presentation](https://drive.google.com/file/d/1ma3nUb6nD6id_YgbImqaxrZ-IpEBWTIF/view)
+
+---
+
 ### Waste Classification & Sorting Subsystem
 
 **Responsible:** Evgenii Kuryshev
