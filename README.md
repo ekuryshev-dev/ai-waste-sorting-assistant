@@ -12,6 +12,12 @@
 >   2. Initialization Methods: Setup or configuration logic where applicable.
 >   3. Encapsulation (Getters & Setters): Accessor and mutator methods for class attributes.
 ---
+
+### Team Video Presentation
+
+[Watch the Hometask 1 team presentation](https://drive.google.com/file/d/1xzJsRUS4sF_cuANw4r5oJkVHU_gfJqJG/view)
+
+---
 ### Waste Classification & Sorting Subsystem
 
 **Responsible:** Evgenii Kuryshev
