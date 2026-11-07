@@ -113,7 +113,7 @@ The `api.py` module exposes FastAPI endpoints and connects the API, processing p
 
 #### Class Diagram
 
-To be added.
+![Waste Analytics & Dashboard Subsystem — Hometask 3 UML Class Diagram](dashboard_subsystem/docs/hometask3_class_diagram.png)
 
 #### Model
 
