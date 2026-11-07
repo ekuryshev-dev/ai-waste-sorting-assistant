@@ -242,6 +242,10 @@ Measured with `pytest-cov`: **86 % of the subsystem (278 of 323 statements)** is
 
 The retry logic of the fallback classifier and the exception classes are fully covered. The uncovered code is mostly the real `OpenAIClient` (property validation and the translation of OpenAI errors) and the startup code in `dependencies.py` that runs only when `OPENAI_API` is set. These parts need a real API key and network access, so the tests use the mock client instead.
 
+#### Model
+
+The assistant uses the OpenAI `gpt-6-luna` model through the OpenAI SDK for both the chat and the image fallback. Without the `OPENAI_API` variable, the subsystem works with a mock client and an in-memory SQLite database.
+
 #### Run
 
 From the repository root, install the dependencies and run the 18 tests:
