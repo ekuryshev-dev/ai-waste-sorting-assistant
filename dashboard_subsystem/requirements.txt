@@ -8,3 +8,4 @@ pydantic
 pg8000
 python-dotenv
 httpx
+pytest-cov

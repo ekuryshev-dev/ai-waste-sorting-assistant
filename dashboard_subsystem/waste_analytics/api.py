@@ -22,10 +22,12 @@ from waste_analytics.waste_record import WasteRecord
 from waste_analytics.sql_waste_repository import SQLWasteRepository
 from waste_analytics.waste_analytics_service import WasteAnalyticsService
 from waste_analytics.analytics_controller import AnalyticsController
+from waste_analytics.error_handler import WasteAnalyticsError
+from waste_analytics.error_handler import WasteAnalyticsErrorHandler
 from waste_analytics.validation_processor import ValidationProcessor
 from waste_analytics.analytics_processor import AnalyticsProcessor
 from waste_analytics.websocket_manager import AnalyticsConnectionManager
-from fastapi import FastAPI, HTTPException
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -38,7 +40,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Waste Analytics API", lifespan=lifespan)
 
-
+WasteAnalyticsErrorHandler.register(app)
 
 repository = SQLWasteRepository(engine)
 service = WasteAnalyticsService(repository)
@@ -102,15 +104,15 @@ async def add_record(
         raise HTTPException(status_code=403, detail="Forbidden")
 
     if not data.item.strip():
-        raise HTTPException(
-            status_code=400,
-            detail="Item name cannot be empty"
+        raise WasteAnalyticsError(
+            "Item name cannot be empty",
+            400
         )
 
     if not data.region_code.strip():
-        raise HTTPException(
-            status_code=400,
-            detail="Region code cannot be empty"
+        raise WasteAnalyticsError(
+            "Region code cannot be empty",
+            400
         )
 
     record = WasteRecord(
@@ -125,10 +127,7 @@ async def add_record(
             record
         )
     except (ValueError, TypeError) as exc:
-        raise HTTPException(
-            status_code=400,
-            detail=str(exc)
-        ) from exc
+        raise WasteAnalyticsError(str(exc), 400) from exc
 
     await request.app.state.ws_manager.broadcast_update(
         record.get_region_code()
