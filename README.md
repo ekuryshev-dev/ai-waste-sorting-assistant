@@ -36,6 +36,26 @@ Fifteen tests cover image preparation, class mapping, regional rules, confidence
 14. The API handler returns status `400` for invalid image data.
 15. The API handler returns status `422` when a regional rule is missing.
 
+#### Test Coverage
+
+Measured with `pytest-cov`: **70% of the subsystem (240 of 344 statements)** is covered. All 15 tests pass.
+
+| File | Statements | Missed | Coverage |
+|---|---:|---:|---:|
+| `engine.py` | 39 | 0 | 100% |
+| `models.py` | 46 | 0 | 100% |
+| `image_processing.py` | 18 | 0 | 100% |
+| `errors.py` | 4 | 0 | 100% |
+| `regional_rules.py` | 24 | 1 | 96% |
+| `class_mapping.py` | 18 | 1 | 94% |
+| `main.py` | 43 | 10 | 77% |
+| `stream_processing.py` | 69 | 34 | 51% |
+| `wasteclassifier.py` | 30 | 18 | 40% |
+| `analytics_client.py` | 12 | 8 | 33% |
+| `fallback_client.py` | 20 | 15 | 25% |
+| `db_config.py` | 21 | 17 | 19% |
+| **Total** | **344** | **104** | **70%** |
+
 #### Model
 
 The subsystem uses [ResNet50 Garbage Classification v1.2](https://huggingface.co/kendrickfff/my_resnet50_garbage_classificationv1.2), which predicts one of 12 waste labels for an image. `ImageProcessor` prepares a 224 × 224 RGB image; `WasteClassifier` applies the normalization used by the included weights. The [model README](classification_subsystem/backend/model/README.md) lists the labels, training-data source and limitations.
@@ -134,10 +154,6 @@ Measured with `pytest-cov`: **86 % of the subsystem (278 of 323 statements)** is
 | **Total** | **323** | **45** | **86 %** |
 
 The retry logic of the fallback classifier and the exception classes are fully covered. The uncovered code is mostly the real `OpenAIClient` (property validation and the translation of OpenAI errors) and the startup code in `dependencies.py` that runs only when `OPENAI_API` is set. These parts need a real API key and network access, so the tests use the mock client instead.
-
-#### Model
-
-The assistant uses the OpenAI `gpt-6-luna` model through the OpenAI SDK for both the chat and the image fallback. Without the `OPENAI_API` variable, the subsystem works with a mock client and an in-memory SQLite database.
 
 #### Run
 
