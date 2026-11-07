@@ -1,6 +1,8 @@
 from io import BytesIO
 
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, UnidentifiedImageError
+
+from .errors import ClassificationError
 
 
 class ImageProcessor:
@@ -16,7 +18,10 @@ class ImageProcessor:
         self._size = value
 
     def prepare(self, data: bytes) -> Image.Image:
-        with Image.open(BytesIO(data)) as source:
-            image = source.convert("RGB")
+        try:
+            with Image.open(BytesIO(data)) as source:
+                image = source.convert("RGB")
+        except (UnidentifiedImageError, OSError) as exc:
+            raise ClassificationError("The uploaded file is not a valid image", 400) from exc
         size = self.get_size()
         return ImageOps.pad(image, (size, size), method=Image.Resampling.LANCZOS, color="white")

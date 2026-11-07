@@ -9,6 +9,7 @@ from .analytics_client import AnalyticsClient
 from .class_mapping import ClassMapping
 from .db_config import get_rules_db_url, get_setting
 from .engine import DisposalRecommendationEngine
+from .errors import ClassificationError
 from .fallback_client import AssistantFallbackClient
 from .image_processing import ImageProcessor
 from .models import ImageQuery
@@ -69,6 +70,8 @@ def recommend(
         result = engine.get_recommendation(query)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except ClassificationError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
 
     classification = result.classification
     return {

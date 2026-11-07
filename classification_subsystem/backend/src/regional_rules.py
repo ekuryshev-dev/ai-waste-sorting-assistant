@@ -1,5 +1,6 @@
 from sqlmodel import Session, create_engine, select
 
+from .errors import ClassificationError
 from .models import Category, RecyclingRule
 
 
@@ -31,5 +32,5 @@ class RegionalRulesService:
             )
             rule = session.exec(statement).first()
             if rule is None:
-                raise KeyError((region, material))
+                raise ClassificationError("No disposal rule for this material and region", 422)
             return rule.category, rule.instructions or ""
