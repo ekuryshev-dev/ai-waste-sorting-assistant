@@ -18,6 +18,12 @@
 > 1. Filter out low-confidence material classification predictions.
 > 2. Transform bounding box metrics and visual tags into material categories (e.g., PET, HDPE, Aluminum) and conveyor routing codes.
 ---
+
+### Team Video Presentation
+
+[Watch the Hometask 2 team presentation](https://drive.google.com/file/d/14F0PEOafwxDagjAu-e5uD1SK4RURcGwk/view)
+
+---
 ### Waste Classification & Sorting Subsystem
 
 **Responsible:** Evgenii Kuryshev
