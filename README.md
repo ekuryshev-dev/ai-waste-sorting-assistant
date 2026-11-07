@@ -73,25 +73,112 @@ The tests use temporary local data and do not require service credentials.
 
 ---
 
-### Waste Analytics & Dashboard Subsystem
+## Waste Analytics & Dashboard Subsystem
 
 **Responsible:** Anastasiia Shovkova
 
-To be added.
+In Hometask 4, the Waste Analytics & Dashboard Subsystem adds exception handling and automated testing to the existing analytics architecture.
 
-#### Classes
+The subsystem uses a custom `WasteAnalyticsError` exception containing an error code and message. The `WasteAnalyticsErrorHandler` integrates with FastAPI and provides structured JSON error responses.
 
-To be added.
+The tests cover analytics calculations, record validation, stream processing, API validation, and exception handling.
 
 #### Class Diagram
 
-To be added.
+![Waste Analytics and Dashboard subsystem class diagram](dashboard_subsystem/docs/uml_class_diagram.png)
 
-#### Run
+### Classes
 
-To be added.
+**Added in Hometask 4:**
 
----
+- `WasteAnalyticsError` — represents a custom application error with a code and message.
+- `WasteAnalyticsErrorHandler` — registers exception handling with FastAPI and converts application errors into JSON responses.
+
+**Updated:**
+
+- `api.py` — integrates the error handler with the existing API.
+- `test_error_handler.py` — verifies exception handling.
+- `test_api_validation.py` — checks API input validation.
+
+### Tests
+
+The subsystem was tested using Pytest.
+
+The test suite includes checks for:
+
+1. Waste record creation and attributes.
+2. Category distribution calculations.
+3. Recyclable share calculations.
+4. Statistics generation.
+5. Daily trend calculations.
+6. Region-based record filtering.
+7. Analytics controller operations.
+8. Stream processing and validation.
+9. Iterator and generator behavior.
+10. API input validation and error handling.
+
+These are the main areas covered by the test suite, rather than a one-to-one list of individual test functions.
+
+**Test result: 18 passed, 1 warning.**
+
+### Test Coverage
+
+Measured using `pytest-cov`: **62% of the subsystem (309 of 500 statements) is covered.** All 18 tests pass.
+
+| File | Statements | Missed | Coverage |
+|---|---:|---:|---:|
+| analytics_controller.py | 15 | 2 | 87% |
+| analytics_processor.py | 7 | 0 | 100% |
+| api.py | 104 | 54 | 48% |
+| category.py | 6 | 0 | 100% |
+| dashboard.py | 39 | 39 | 0% |
+| database.py | 15 | 6 | 60% |
+| db_models.py | 8 | 0 | 100% |
+| error_handler.py | 21 | 0 | 100% |
+| main.py | 19 | 19 | 0% |
+| pipeline_demo.py | 17 | 17 | 0% |
+| sql_waste_repository.py | 29 | 16 | 45% |
+| statistics_summary.py | 27 | 5 | 81% |
+| stream_processor.py | 16 | 2 | 88% |
+| trend_point.py | 27 | 6 | 78% |
+| validation_processor.py | 16 | 4 | 75% |
+| waste_analytics_service.py | 65 | 8 | 88% |
+| waste_event_stream.py | 15 | 0 | 100% |
+| waste_record.py | 25 | 4 | 84% |
+| waste_repository.py | 13 | 0 | 100% |
+| websocket_manager.py | 16 | 9 | 44% |
+| **Total** | **500** | **191** | **62%** |
+
+The error handler achieves 100% statement coverage. The overall percentage includes API routes, WebSocket functionality, and console demonstration modules that are not fully exercised by the current tests.
+
+
+### Run
+
+From the repository root, install the dependencies:
+
+`python -m pip install -r dashboard_subsystem/requirements.txt`
+
+Install the coverage plugin if necessary:
+
+`python -m pip install pytest-cov`
+
+For local testing, enter the subsystem directory:
+
+`cd dashboard_subsystem`
+
+Enable SQLite in PowerShell:
+
+`$env:USE_SQLITE = "1"`
+
+Run all tests with coverage:
+
+`python -m pytest tests --cov=waste_analytics --cov-report=term-missing`
+
+**Expected test result:** 18 passed.
+
+**Measured coverage:** 62%.
+
+The local test configuration uses SQLite and does not require Neon database credentials.
 
 ### AI Assistant Subsystem
 
