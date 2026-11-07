@@ -1,8 +1,11 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from dependencies import db_manager
 from controller import router as chat_router
+from errors import LLMError
+import logging
 from fallback_controller import router as fallback_router
 
 
@@ -23,6 +26,12 @@ app.add_middleware(
 
 app.include_router(chat_router)
 app.include_router(fallback_router)
+
+
+@app.exception_handler(LLMError)
+async def llm_error_handler(request: Request, exc: LLMError):
+    logging.getLogger(__name__).error("LLM error: %s", exc)
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.user_message})
 
 
 @app.get("/health")

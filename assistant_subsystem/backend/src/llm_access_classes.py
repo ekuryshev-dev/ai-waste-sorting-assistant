@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
-from openai import OpenAI
+import logging
+from openai import OpenAI, APITimeoutError, RateLimitError, OpenAIError
+from errors import LLMError, LLMTimeoutError, LLMBusyError
 
 
 class LLMClientInter(ABC):
@@ -52,5 +54,15 @@ class OpenAIClient(LLMClientInter):
             self.client = self.client.with_options(timeout=value)
 
     def converse(self, messages):
-        response = self.client.chat.completions.create(model=self.model, messages=messages)
-        return response.choices[0].message.content or ""
+        try:
+            response = self.client.chat.completions.create(model=self.model, messages=messages)
+        except APITimeoutError as e:
+            raise LLMTimeoutError(str(e)) from e
+        except RateLimitError as e:
+            raise LLMBusyError(str(e)) from e
+        except OpenAIError as e:
+            raise LLMError(str(e)) from e
+        reply = response.choices[0].message.content
+        if not reply:
+            raise LLMError("Empty reply from the model")
+        return reply

@@ -2,6 +2,7 @@ import base64
 import json
 from dataclasses import dataclass
 from data_handler_classes import Category
+from errors import LLMError
 
 
 @dataclass
@@ -31,7 +32,10 @@ class ImageFallbackClassifier:
     def classify(self, image, mime_type = "image/jpeg", region = None):
         messages = self.build_messages(image, mime_type, region)
         for _ in range(self.max_retries + 1):
-            reply = self.ai_client.converse(messages)
+            try:
+                reply = self.ai_client.converse(messages)
+            except LLMError:
+                break
             result = self.parse(reply)
             if (result is not None) and (result.category != Category.unknown):
                 return result
