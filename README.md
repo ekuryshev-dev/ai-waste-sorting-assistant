@@ -10,6 +10,12 @@
 > 
 > Create 15 different tests for your application.
 ---
+
+### Team Video Presentation
+
+[Watch the Hometask 4 team presentation](https://drive.google.com/file/d/1vBMnyN5Uf3zC3Vj0LHJQCAcRN04yxPjF/view)
+
+---
 ### Waste Classification & Sorting Subsystem
 
 **Responsible:** Evgenii Kuryshev
