@@ -175,16 +175,18 @@ In Hometask 3, the subsystem becomes a FastAPI application. It exposes the chat 
 - `DTOin` validates the chat request body (1 to 500 characters).
 - `DTOout` is a chat message returned by the API (`role`, `content`).
 - `FallbackOut` is the response of `/fallback/classify`.
+- `controller` is the module with the chat endpoints. It passes requests to `AssistantService`.
+- `fallback_controller` is the module with the fallback endpoint. It checks the image type and size and passes the image to `ImageFallbackClassifier`.
+- `main` is the module that creates the FastAPI application, creates the database tables at startup, enables CORS for the frontend, registers both controllers and provides `/health`.
+- `dependencies` is the module that builds `AssistantService` and `ImageFallbackClassifier` for each request. It uses `OpenAIClient` when `OPENAI_API` is set and `LLMMockClient` otherwise.
 
 #### Class Diagram
 
-![AI Assistant Subsystem UML Class Diagram](docs/assistant_class_diagram_HW1.png)
-
-The diagram is unchanged from Hometask 1. The three classes above are Pydantic schemas for the API and are not shown.
+![AI Assistant Subsystem — Hometask 3 UML Class Diagram](docs/assistant_class_diagram_HW3.png)
 
 #### Run
 
-From the repository root:
+From the repository root, with Docker:
 
 ```powershell
 cd assistant_subsystem/backend
@@ -192,4 +194,14 @@ docker build -t assistant-subsystem .
 docker run -p 8000:8000 assistant-subsystem
 ```
 
-Open `http://127.0.0.1:8000/docs`. This starts with the mock AI and an in-memory database. To use the real services, add `-e DATABASE_URL="<Neon connection string>" -e OPENAI_API="<OpenAI key>"` to the `docker run` command, and never commit these values.
+Or without Docker (Python 3.10 or newer):
+
+```powershell
+python -m pip install -r assistant_subsystem/backend/requirements.txt
+cd assistant_subsystem/backend/src
+python -m uvicorn main:app --port 8000
+```
+
+Open `http://127.0.0.1:8000/docs`. Both options start with the mock AI and an in-memory database. To use the real services, add `-e DATABASE_URL="<Neon connection string>" -e OPENAI_API="<OpenAI key>"` to the `docker run` command, or put the same two values in a file named `.env` in `assistant_subsystem/backend` when running without Docker. Never commit these values.
+
+The console demo from Hometask 1 also works: `python assistant_subsystem/demo.py`.
