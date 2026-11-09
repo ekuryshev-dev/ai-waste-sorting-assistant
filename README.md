@@ -19,6 +19,7 @@
 
 [Watch the team presentation slides](https://www.youtube.com/)
 
+---
 
 ### How to Run the System
 
@@ -42,7 +43,7 @@ The subsystem accepts a waste photo and a city. A pretrained ResNet50 classifies
 **Class diagram:**
 ![Class diagram](docs/classification_class_diagram_HW2.png)
 
-#### Dashboard Subsystem
+### Dashboard Subsystem
 
 The dashboard block provides statistics for municipalities and responsible for collecting, processing, and presenting waste classification statistics for different regions. It reads the stored waste data and shows clear metrics and visualisations about waste composition as well as recycling-related rates.
 
