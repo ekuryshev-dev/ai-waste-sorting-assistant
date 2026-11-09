@@ -1,4 +1,4 @@
-"""Read settings from the environment or the local .env file."""
+"""Read classification settings from the environment or the root .env file."""
 
 import os
 from pathlib import Path
@@ -9,7 +9,7 @@ def get_setting(name: str) -> str | None:
     if value:
         return value
 
-    env_file = Path(__file__).resolve().parents[1] / ".env"
+    env_file = Path(__file__).resolve().parents[3] / ".env"
     if env_file.exists():
         for line in env_file.read_text(encoding="utf-8").splitlines():
             key, separator, value = line.partition("=")
@@ -23,8 +23,8 @@ def get_setting(name: str) -> str | None:
 
 
 def get_rules_db_url() -> str:
-    url = get_setting("REGIONAL_RULES_DB_URL")
+    url = get_setting("DATABASE_URL")
     if url:
         return url
 
-    raise RuntimeError("Set REGIONAL_RULES_DB_URL to the Neon connection URL")
+    raise RuntimeError("Set DATABASE_URL to the Neon connection URL")
