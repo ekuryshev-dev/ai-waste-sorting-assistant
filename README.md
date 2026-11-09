@@ -78,6 +78,7 @@ Files and descriptions for each separate homework task can be found across the 4
 * **Homeworkassignment004**
   
 Branch **dev** was used during the development process and does not hold the final version of the platform.
+
 Branch **capstone-integration** was used for subsystem merging during the final stage of the project.
 
 ---
