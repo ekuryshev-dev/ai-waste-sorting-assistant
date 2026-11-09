@@ -35,7 +35,7 @@
 An educational chat about waste, recycling and the circular economy for German citizens, plus a one-shot image fallback. When the CV model cannot classify an image, the fallback asks an LLM and returns a category with disposal instructions. The chat uses the regional recycling rules stored in the database and keeps its history for a limited time, per browser session, with no accounts.
 
 **Class diagram:**
-![Class diagram](docs/assistant_class_diagram_HW4.png)
+![Class diagram](docs/assistant_class_diagram_final.png)
 
 ### Classification Subsystem
 
@@ -56,14 +56,15 @@ The dashboard block provides statistics for municipalities and responsible for c
 ### Tech Stack and Rationale
 
 * **Backend: Python and FastAPI.** Asynchronous by design, with built-in support for WebSockets and streaming responses, which leaves room to stream AI answers later. We chose it over Django, which bundles user accounts, an admin panel and templates that we don't need, since the project has no logins. Flask is just as light, but it needs extra libraries for input validation and API documentation. FastAPI provides both out of the box: Pydantic checks every request (for example the 500-character limit on chat messages), and it generates an interactive API page (`/docs`) automatically.
-* **Database and media storage: Neon.tech (serverless PostgreSQL) and Cloudinary.** Neon offers PostgreSQL with a free tier, so the team gets a hosted database with no server to maintain. We chose PostgreSQL over MySQL because it gives reliable transactions and is strong at the analytical queries the dashboard needs (grouping and aggregating waste records by region and time). Only image URLs go into the database, never raw image data. Cloudinary stores the images and serves them through a CDN.
-* **ORM: SQLModel / SQLAlchemy.** Table models and API schemas use the same Python classes. It works the same with either database, so the application code does not depend on the PostgreSQL choice.
+* **Database: Neon.tech (serverless PostgreSQL).** Neon offers PostgreSQL with a free tier, so the team gets a hosted database with no server to maintain. We chose PostgreSQL over MySQL because it gives reliable transactions and is strong at the analytical queries the dashboard needs (grouping and aggregating waste records by region and time).
+* **ORM: SQLModel.** Table models and API schemas use the same Python classes. It works the same with either database, so the application code does not depend on the PostgreSQL choice. Protects the platform from SQL injection attacks.
 * **Data processing: Pandas.** It aggregates the raw logs on the backend into compact JSON for the dashboard. Plotting libraries stay out of the backend to save server resources.
 * **Frontend and charts: React (Vite) with Recharts or Chart.js.** React handles the live chat state. Charts are drawn in the browser from the backend's JSON, so no static images are sent over the network.
-* **AI model: OpenAI `gpt-6-luna`.** Our chat answers are short and our fallback only needs 1-3 values as a response, so a low-cost model is enough, and it keeps the API cost small for a student project. The model name is set in one place, so we can switch to a stronger model without changing the code.
+* **AI model: OpenAI `gpt-6-luna`.** Our chat answers are short and our fallback only needs 1-3 values as a response, so this new lightweight model is enough, and it also keeps the API cost small for a student project. The model name is set in one place, so we can switch to a stronger model without changing the code.
 * **Deployment: Netlify and Render.** The frontend and backend are deployed separately. Netlify hosts the React build, and Render runs the FastAPI service. Both deploy automatically when we push to GitHub.
 * **Version control and CI/CD: GitHub.** One repository holds all three subsystems. Each task has its own branch, and pushes trigger the deployments.
 * **Testing: Pytest and HTTPX.** Pytest fixtures give each test a clean in-memory database. HTTPX and FastAPI's built-in test client exercise the endpoints without running a server, and the OpenAI client is replaced by a mock, so tests need no API key and cost nothing.
+* **CV Model: ResNet50 Garbage Classification v1.2.** This pre-trained model is used to predict one of 12 waste labels for an image. The system prepares a 224 × 224 RGB image and applies the normalization used by the included weights. The model README in classification_subsystem lists the labels, training-data source and limitations.
 
 ---
 
