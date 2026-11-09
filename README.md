@@ -19,6 +19,7 @@
 
 [Watch the team presentation slides](https://www.youtube.com/)
 
+
 ### How to Run the System
 
 [Link to the website to be added]
@@ -27,23 +28,21 @@
 
 ---
 
-### System Design
-
-#### Assistant subsystem
+### Assistant Subsystem
 
 An educational chat about waste, recycling and the circular economy for German citizens, plus a one-shot image fallback. When the CV model cannot classify an image, the fallback asks an LLM and returns a category with disposal instructions. The chat uses the regional recycling rules stored in the database and keeps its history for a limited time, per browser session, with no accounts.
 
 **Class diagram:**
 ![Class diagram](docs/assistant_class_diagram_HW4.png)
 
-#### Classification subsystem
+### Classification Subsystem
 
 The subsystem accepts a waste photo and a city. A pretrained ResNet50 classifies the image into one of 12 model labels, which are mapped to the materials used by our regional rules. DisposalRecommendationEngine retrieves the category and disposal instruction from our separate Neon table. If CV confidence is too low, the subsystem can ask the assistant service to return a material from the list available for that city. If no material can be identified, it asks the user for another photo. When analytics is configured, it receives the material, category and region, without the recommendation text.
 
 **Class diagram:**
-![Class diagram](docs/classification_class_diagram_HW3.png)
+![Class diagram](docs/classification_class_diagram_HW2.png)
 
-#### Dashboard subsystem
+#### Dashboard Subsystem
 
 The dashboard block provides statistics for municipalities and responsible for collecting, processing, and presenting waste classification statistics for different regions. It reads the stored waste data and shows clear metrics and visualisations about waste composition as well as recycling-related rates.
 
