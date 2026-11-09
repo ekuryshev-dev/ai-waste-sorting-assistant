@@ -1,6 +1,7 @@
 # AI-Powered Waste Sorting & Recycling Assistant
 
 **Platform name:** DiliGen
+
 **Subtopic:** CV- and LLM-Based Waste Awareness Assistant for German Citizens
 
 ### Team Overview
@@ -47,6 +48,7 @@ The subsystem accepts a waste photo and a city. A pretrained ResNet50 classifies
 
 The dashboard block provides statistics for municipalities and responsible for collecting, processing, and presenting waste classification statistics for different regions. It reads the stored waste data and shows clear metrics and visualisations about waste composition as well as recycling-related rates.
 
+**Class diagram:**
 ![Class diagram](dashboard_subsystem/docs/uml_class_diagram.png)
 
 ---
