@@ -26,7 +26,14 @@
 
 [Link to the website to be added]
 
-[Docker / Application launching description to be added]
+Run locally (Python 3.12):
+
+1. `pip install -r requirements.txt` installs the requirements of all three services.
+2. Copy `.env.example` to `.env` in the repository root and fill in the values.
+3. `python main.py` starts the assistant on port 8000, classification on 8001 and the dashboard on 8002.
+4. In `frontend`, run `npm install` and `npm run dev`, then open http://localhost:5173.
+
+On Render each service is deployed separately from its own folder with its own `requirements.txt`, and its variables are set in the Render dashboard.
 
 ---
 

@@ -10,7 +10,7 @@ from data_handler_classes import ChatRepo, DBManager, RulesRepo
 from llm_access_classes import LLMMockClient, OpenAIClient
 
 
-load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+load_dotenv()
 
 db_manager = DBManager(os.getenv("DATABASE_URL", "sqlite://"))
 api_key = os.getenv("OPENAI_API")
