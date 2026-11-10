@@ -1,5 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { getJson, sendChat, sendPhoto } from './api.js'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { clearChat, getChat, getJson, sendChat, sendPhoto, wakeService } from './api.js'
+
+const services = {
+  assistant: { name: 'AI assistant', url: '/health/assistant' },
+  classification: { name: 'Photo identification', url: '/health/classification' },
+  analytics: { name: 'Statistics', url: '/health/analytics' },
+}
+const pageService = { chat: 'assistant', photo: 'classification', dashboard: 'analytics' }
+const KEEP_AWAKE_MS = 10 * 60 * 1000
 
 const categories = [
   { key: 'recyclable', label: 'Recyclable', color: '#24825c' },
@@ -20,6 +28,7 @@ function Icon({ name }) {
     send: <><path d="m3 11 18-8-8 18-2.5-7.5L3 11Z" /><path d="M10.5 13.5 21 3" /></>,
     check: <path d="m4 12 5 5L20 6" />,
     warning: <><path d="M12 3 2 21h20L12 3Z" /><path d="M12 9v5m0 3h.01" /></>,
+    trash: <><path d="M4 7h16M10 11v6M14 11v6" /><path d="M6 7l1 13h10l1-13M9 7V4h6v3" /></>,
   }
   return <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{shapes[name]}</svg>
 }
@@ -31,7 +40,13 @@ function Header({ page, goHome }) {
   </div></header>
 }
 
-function Home({ setPage }) {
+function ServiceLabel({ status }) {
+  if (status.state === 'waking') return <span className="service-label">Starting…</span>
+  if (status.state === 'down') return <span className="service-label down">Not responding</span>
+  return null
+}
+
+function Home({ setPage, status }) {
   const cards = [
     { page: 'chat', icon: 'chat', title: 'Ask the AI assistant', text: 'Get answers to your questions about waste sorting and recycling.' },
     { page: 'photo', icon: 'camera', title: 'Identify an item', text: 'Upload a photo and find disposal instructions for your region.' },
@@ -45,7 +60,7 @@ function Home({ setPage }) {
     <section className="home-actions" aria-label="Choose what you want to do">{cards.map(card =>
       <button key={card.page} className="action-card" onClick={() => setPage(card.page)}>
         <span className="card-top"><span className="card-icon"><Icon name={card.icon} /></span></span>
-        <span className="card-title">{card.title}</span><span className="card-text">{card.text}</span>
+        <span className="card-title">{card.title} <ServiceLabel status={status[pageService[card.page]]} /></span><span className="card-text">{card.text}</span>
       </button>)}</section>
   </main>
 }
@@ -137,40 +152,72 @@ function PhotoPage() {
   </main>
 }
 
+const CHAT_TOKEN_KEY = 'diligen-chat-token'
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+function loadChatToken() {
+  try {
+    const saved = sessionStorage.getItem(CHAT_TOKEN_KEY)
+    if (saved && UUID_PATTERN.test(saved)) return saved
+    const token = crypto.randomUUID()
+    sessionStorage.setItem(CHAT_TOKEN_KEY, token)
+    return token
+  } catch { return crypto.randomUUID() }
+}
+
 function ChatPage() {
-  const [token] = useState(() => crypto.randomUUID())
+  const [token] = useState(loadChatToken)
   const [messages, setMessages] = useState([])
   const [text, setText] = useState('')
-  const [busy, setBusy] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [busy, setBusy] = useState('')
   const [error, setError] = useState('')
   const bottom = useRef(null)
   useEffect(() => { bottom.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages, busy])
 
+  useEffect(() => {
+    let active = true
+    getChat(token).then(history => { if (active) setMessages(Array.isArray(history) ? history : []) })
+      .catch(err => { if (active) setError(err.message) })
+      .finally(() => { if (active) setLoading(false) })
+    return () => { active = false }
+  }, [token])
+
   async function submit(event) {
     event.preventDefault()
     const question = text.trim()
-    if (!question || busy) return
-    setMessages(current => [...current, { role: 'user', content: question }]); setText(''); setBusy(true); setError('')
+    if (!question || busy || loading) return
+    setMessages(current => [...current, { role: 'user', content: question }]); setText(''); setBusy('send'); setError('')
     try {
       const reply = await sendChat(token, question)
       setMessages(current => [...current, reply])
     }
     catch (err) { setError(err.message) }
-    finally { setBusy(false) }
+    finally { setBusy('') }
   }
 
-  return <main className="page-content chat-page"><div className="section-heading"><span className="eyebrow">AI RECYCLING ASSISTANT</span><p>Ask a question and mention your region if local rules matter.</p></div>
+  async function clear() {
+    if (busy || loading) return
+    setBusy('clear'); setError('')
+    try { await clearChat(token); setMessages([]) }
+    catch (err) { setError(err.message) }
+    finally { setBusy('') }
+  }
+
+  return <main className="page-content chat-page"><div className="section-heading chat-heading"><div><span className="eyebrow">AI RECYCLING ASSISTANT</span><p>Ask a question and mention your region if local rules matter.</p></div>
+      <button type="button" className="secondary-button" onClick={clear} disabled={!messages.length || Boolean(busy) || loading}><Icon name="trash" /> Clear chat</button></div>
     <section className="panel chat-panel" aria-label="Chat with AI recycling assistant"><div className="chat-messages" aria-live="polite">
       <div className="chat-message assistant"><span className="message-avatar">D</span><div className="message-bubble">Hello! Ask me how to sort an item. Please mention your city or region if local rules matter.</div></div>
       {messages.map((message, index) => <div key={index} className={`chat-message ${message.role === 'user' ? 'user' : 'assistant'}`}>
         {message.role !== 'user' && <span className="message-avatar">D</span>}<div className="message-bubble">{message.content}</div>
       </div>)}
-      {busy && <div className="chat-message assistant"><span className="message-avatar">D</span><div className="message-bubble muted">Thinking…</div></div>}
+      {loading && <div className="chat-message assistant"><span className="message-avatar">D</span><div className="message-bubble muted">Loading your conversation…</div></div>}
+      {busy === 'send' && <div className="chat-message assistant"><span className="message-avatar">D</span><div className="message-bubble muted">Thinking…</div></div>}
       <div ref={bottom} /></div>
-      {error && <p className="chat-error" role="alert">{error} You can send your question again.</p>}
+      {error && <p className="chat-error" role="alert">{error}</p>}
       <form className="chat-form" onSubmit={submit}><label className="sr-only" htmlFor="question">Your question</label>
         <textarea id="question" value={text} onChange={event => setText(event.target.value)} maxLength={500} rows={2} placeholder="For example: How do I dispose of a pizza box in Dortmund?" onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); event.currentTarget.form.requestSubmit() } }} />
-        <button className="send-button" type="submit" disabled={!text.trim() || busy} aria-label="Send message"><Icon name="send" /></button>
+        <button className="send-button" type="submit" disabled={!text.trim() || Boolean(busy) || loading} aria-label="Send message"><Icon name="send" /></button>
       </form>
     </section>
   </main>
@@ -258,14 +305,71 @@ function DashboardPage() {
   </main>
 }
 
+function useServiceStatus() {
+  const [status, setStatus] = useState(() => Object.fromEntries(Object.keys(services).map(key => [key, { state: 'checking', everReady: false }])))
+  const running = useRef({})
+  const down = useRef({})
+  const active = useRef(false)
+
+  const check = useCallback(async (key, immediate = false) => {
+    if (running.current[key]) return
+    running.current[key] = true
+    down.current[key] = false
+    const update = state => setStatus(current => ({ ...current, [key]: { state, everReady: current[key].everReady || state === 'ready' } }))
+    if (immediate) update('waking')
+    const slowTimer = setTimeout(() => { if (active.current) update('waking') }, 1500)
+    const awake = await wakeService(services[key].url, () => !active.current)
+    clearTimeout(slowTimer)
+    running.current[key] = false
+    if (!active.current) return
+    down.current[key] = !awake
+    update(awake ? 'ready' : 'down')
+  }, [])
+
+  useEffect(() => {
+    active.current = true
+    let lastCheck = 0
+    const checkAll = () => { lastCheck = Date.now(); Object.keys(services).filter(key => !down.current[key]).forEach(key => check(key)) }
+    const onVisible = () => { if (document.visibilityState === 'visible' && Date.now() - lastCheck > 60000) checkAll() }
+    checkAll()
+    const pingTimer = setInterval(() => { if (document.visibilityState === 'visible') checkAll() }, KEEP_AWAKE_MS)
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      active.current = false
+      clearInterval(pingTimer)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
+  }, [check])
+
+  return [status, key => check(key, true)]
+}
+
+function ServiceGate({ name, status, retry, children }) {
+  const down = status.state === 'down'
+  const notice = status.state === 'waking' || down ? <div className="panel service-notice" role="status" aria-live="polite">
+    <span className="card-icon"><Icon name={down ? 'warning' : 'refresh'} /></span>
+    <h2>{down ? `${name} isn't responding` : `${name} is starting…`}</h2>
+    <p>{down ? 'The service may be offline. The other parts of the site still work.' : 'After a quiet period this can take up to a minute.'}</p>
+    {down && <button type="button" className="secondary-button" onClick={retry}><Icon name="refresh" /> Try again</button>}
+  </div> : null
+  if (!status.everReady) return <main className="page-content service-wait">{notice}</main>
+  const locked = status.state !== 'ready'
+  return <>
+    <div inert={locked} className="service-content">{children}</div>
+    {locked && notice && <div className="service-overlay">{notice}</div>}
+  </>
+}
+
 export default function App() {
   const [page, setPage] = useState('home')
+  const [status, retry] = useServiceStatus()
   useEffect(() => { window.scrollTo(0, 0) }, [page])
+  const key = pageService[page]
+  const pages = { photo: <PhotoPage />, chat: <ChatPage />, dashboard: <DashboardPage /> }
   return <div className={`app-shell${page === 'chat' ? ' chat-shell' : ''}`}><Header page={page} goHome={() => setPage('home')} />
-    {page === 'home' && <Home setPage={setPage} />}
-    {page === 'photo' && <PhotoPage />}
-    {page === 'chat' && <ChatPage />}
-    {page === 'dashboard' && <DashboardPage />}
+    {page === 'home'
+      ? <Home setPage={setPage} status={status} />
+      : <ServiceGate key={page} name={services[key].name} status={status[key]} retry={() => retry(key)}>{pages[page]}</ServiceGate>}
     <footer className="site-footer">Diligen <span>·</span> Smarter waste sorting</footer>
   </div>
 }

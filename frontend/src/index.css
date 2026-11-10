@@ -46,6 +46,8 @@ h1,h2 {
   overflow:hidden
 }
 .site-header {
+  position:relative;
+  z-index:41;
   background:#fff;
   border-bottom:1px solid #e7eee7
 }
@@ -486,6 +488,67 @@ h1,h2 {
   height:auto;
   min-height:0;
   overflow:hidden
+}
+.service-content {
+  display:contents
+}
+.service-wait {
+  display:grid;
+  place-items:center
+}
+.service-notice {
+  width:100%;
+  max-width:440px;
+  padding:28px;
+  display:grid;
+  justify-items:center;
+  gap:10px;
+  text-align:center
+}
+.service-notice h2 {
+  margin:0;
+  font-size:1.2rem
+}
+.service-notice p {
+  margin:0;
+  color:#718276;
+  line-height:1.45
+}
+.service-overlay {
+  position:fixed;
+  inset:0;
+  z-index:40;
+  display:grid;
+  place-items:center;
+  padding:16px;
+  background:#f7faf7cc
+}
+.service-label {
+  display:inline-block;
+  margin-left:6px;
+  padding:2px 9px;
+  border-radius:100px;
+  background:#fdf1dc;
+  color:#8a5a12;
+  font-size:.72rem;
+  font-weight:700;
+  vertical-align:middle
+}
+.service-label.down {
+  background:#fbe4df;
+  color:#a43d2d
+}
+.chat-heading,.chat-panel {
+  margin-inline:auto
+}
+.chat-heading {
+  width:100%;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  max-width:840px
 }
 .chat-panel {
   max-width:840px;
