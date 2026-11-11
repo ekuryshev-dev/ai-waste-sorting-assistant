@@ -30,13 +30,17 @@ There are three ways to use the system.
 
 #### 1. Hosted website
 
-[ADD LINK LATER]
+**https://diligen.netlify.app/**
+
+The services run on free hosting and sleep when idle, so the first visit can take about a minute while each page shows that its service is starting.
 
 The frontend is hosted on Netlify and each backend service on Render.
 
 #### 2. Run locally
 
 Requires Python 3.12 and Node 22.12 or newer. Run all commands from the repository root.
+
+Running locally needs our `.env` file, which we can provide on request. The hosted website needs no setup.
 
 1. Create and activate one virtual environment for the whole project:
    ```
@@ -138,7 +142,7 @@ The dashboard collects, processes and presents statistics about classified waste
 * **Data processing: Pandas.** Pandas counts classifications by category. The analytics API returns summary statistics and daily trends as compact JSON, so plotting libraries stay out of the backend to save server resources.
 * **Frontend and charts: React (Vite).** React handles the page state, such as the chat and the service status. The charts need no chart library: the daily trend chart is drawn with SVG and the category distribution chart with CSS, both in the browser from the backend's JSON, so no images are sent over the network. The dashboard updates live over a WebSocket when new records arrive.
 * **AI model: OpenAI gpt-6-luna.** Our chat answers are short and our fallback only needs 1-3 values as a response, so this new lightweight model is enough, and it also keeps the API cost small for a student project. The model name is set in one place, so we can switch to a stronger model without changing much code.
-* **Architecture and deployment: microservices on Render, frontend on Netlify.** Each subsystem runs as its own FastAPI service on Render, and the services talk to each other over HTTP. Only classification loads torch and the CV model, so the chat and the dashboard stay light within Render's 512 MB free instances, and if one service fails the other pages keep working. Each of us could also develop and deploy our subsystem independently. Netlify hosts the React build and forwards API requests to the matching Render service, so no CORS setup is needed. The trade-off is that free services sleep when idle, so each page shows a loading screen while its service wakes up. Both platforms deploy automatically when changes are pushed to `main`.
+* **Architecture and deployment: microservices on Render, frontend on Netlify.** Each subsystem runs as its own FastAPI service on Render, and the services talk to each other over HTTP. Only classification loads torch and the CV model, so the chat and the dashboard stay light within Render's 512 MB free instances, and if one service fails the other pages keep working. Each of us could also develop and deploy our subsystem independently. Netlify hosts the React build and forwards API requests to the matching Render service, so no CORS setup is needed. The trade-off is that free services sleep when idle, so each page shows a loading screen while its service wakes up. Both platforms deploy from the `main` branch.
 * **Version control: GitHub.** One repository holds all three subsystems and the frontend. Each homework task has its own branch.
 * **Testing: Pytest and HTTPX.** Pytest fixtures set up test data and dependencies, for example a clean in-memory database for the assistant. FastAPI's TestClient, which is built on HTTPX, exercises the API endpoints in-process without running a server. The assistant tests use a mock LLM client, so they need no API key and cost nothing.
 * **CV Model: ResNet50 Garbage Classification v1.2.** This pre-trained model is used to predict one of 12 waste labels for an image. The system prepares a 224 × 224 RGB image and applies the normalization used by the included weights. The model README in classification_subsystem lists the labels, training-data source and limitations.
@@ -147,7 +151,7 @@ The dashboard collects, processes and presents statistics about classified waste
 
 ### Repository Organization
 
-Branch **main** holds the final version of the platform, which is deployed automatically to Render and Netlify.
+Branch **main** holds the final version of the platform, which is deployed to Render and Netlify.
 
 Files and descriptions for each separate homework task can be found across the 4 branches:
 * **Homeworkassignment001**
@@ -155,8 +159,10 @@ Files and descriptions for each separate homework task can be found across the 4
 * **Homeworkassignment003**
 * **Homeworkassignment004**
   
+Branch **capstone-integration** was used for subsystem merging during the final stage of the project.
+
 Branch **dev** was used during the development process and does not hold the final version of the platform.
 
-Branch **capstone-integration** was used for subsystem merging during the final stage of the project.
+Branch **main-old** is the initial branch that holds the first few commits.
 
 ---
