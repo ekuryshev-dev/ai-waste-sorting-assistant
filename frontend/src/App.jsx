@@ -257,6 +257,7 @@ function Header({ page, goHome }) {
   }
 
   const CHAT_TOKEN_KEY = 'diligen-chat-token'
+  const STARTER_QUESTIONS = ['What is the circular economy?', 'Which waste is compostable?', 'How do I dispose of a pizza box in Dortmund?']
   const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
   function newChatToken() {
@@ -308,9 +309,12 @@ function Header({ page, goHome }) {
       }
     }, [token])
 
-    async function submit(event) {
+    function submit(event) {
       event.preventDefault()
-      const question = text.trim()
+      send(text.trim())
+    }
+
+    async function send(question) {
       if (!question || busy || loading) return
       setMessages(current => [...current, {role: 'user', content: question}]);
       setText('');
@@ -342,8 +346,7 @@ function Header({ page, goHome }) {
 
     return <main className="page-content chat-page">
       <div className="section-heading chat-heading">
-        <div><span className="eyebrow">AI RECYCLING ASSISTANT</span><p>Ask a question and mention your region if local
-          rules matter.</p></div>
+        <div><span className="eyebrow">AI RECYCLING ASSISTANT</span><p>Ask about waste sorting, recycling and sustainability.</p></div>
         <button type="button" className="secondary-button" onClick={clear}
                 disabled={!messages.length || Boolean(busy) || loading}><Icon name="trash"/> Clear chat
         </button>
@@ -351,10 +354,14 @@ function Header({ page, goHome }) {
       <section className="panel chat-panel" aria-label="Chat with AI recycling assistant">
         <div className="chat-messages" aria-live="polite">
           <div className="chat-message assistant"><span className="message-avatar">D</span>
-            <div className="message-bubble">Hello! Ask me how to sort an item. Please mention your city or region if
-              local rules matter.
+            <div className="message-bubble">Hi! I can help you sort your waste and answer questions about recycling,
+              composting and the circular economy in Germany. Mention your city so I can apply its local sorting rules.
             </div>
           </div>
+          {!messages.length && !loading && !busy && <div className="starter-questions">
+            {STARTER_QUESTIONS.map(question => <button type="button" key={question} className="starter-button"
+                                                       onClick={() => send(question)}>{question}</button>)}
+          </div>}
           {messages.map((message, index) => <div key={index}
                                                  className={`chat-message ${message.role === 'user' ? 'user' : 'assistant'}`}>
             {message.role !== 'user' && <span className="message-avatar">D</span>}
@@ -372,7 +379,7 @@ function Header({ page, goHome }) {
         <form className="chat-form" onSubmit={submit}><label className="sr-only" htmlFor="question">Your
           question</label>
           <textarea id="question" value={text} onChange={event => setText(event.target.value)} maxLength={500} rows={2}
-                    placeholder="For example: How do I dispose of a pizza box in Dortmund?" onKeyDown={event => {
+                    placeholder="Type your question…" onKeyDown={event => {
             if (event.key === 'Enter' && !event.shiftKey) {
               event.preventDefault();
               event.currentTarget.form.requestSubmit()
@@ -381,6 +388,8 @@ function Header({ page, goHome }) {
           <button className="send-button" type="submit" disabled={!text.trim() || Boolean(busy) || loading}
                   aria-label="Send message"><Icon name="send"/></button>
         </form>
+        <p className="chat-note">Answers are AI-generated and may be inaccurate. For binding rules, check with your
+          municipality.</p>
       </section>
     </main>
   }

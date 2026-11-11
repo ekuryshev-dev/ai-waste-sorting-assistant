@@ -609,6 +609,31 @@ h1,h2 {
 .message-bubble.muted {
   color:#86958a
 }
+.starter-questions {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  padding-left:42px
+}
+.starter-button {
+  background:#fff;
+  color:#246c45;
+  border:1px solid #bbd8c3;
+  border-radius:999px;
+  padding:8px 14px;
+  font-size:.88rem;
+  font-weight:600
+}
+.starter-button:hover {
+  background:#f1f8f2
+}
+.chat-note {
+  margin:0;
+  padding:0 16px 12px;
+  font-size:.78rem;
+  color:#8b998e;
+  text-align:center
+}
 .chat-error {
   margin:0;
   padding:10px 25px;
