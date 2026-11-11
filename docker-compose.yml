@@ -1,0 +1,27 @@
+services:
+  assistant:
+    build: ./assistant_subsystem/backend
+    env_file: .env
+    ports: ["8000:8000"]
+
+  classification:
+    build: ./classification_subsystem/backend
+    env_file: .env
+    environment:
+      ASSISTANT_FALLBACK_URL: http://assistant:8000
+      ANALYTICS_URL: http://dashboard:8002
+    ports: ["8001:8001"]
+
+  dashboard:
+    build: ./dashboard_subsystem
+    env_file: .env
+    ports: ["8002:8002"]
+
+  frontend:
+    build: ./frontend
+    environment:
+      ASSISTANT_URL: http://assistant:8000
+      CLASSIFICATION_URL: http://classification:8001
+      ANALYTICS_URL: http://dashboard:8002
+    ports: ["5173:5173"]
+    depends_on: [assistant, classification, dashboard]

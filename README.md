@@ -24,16 +24,43 @@
 
 ### How to Run the System
 
-[Link to the website to be added]
+There are three ways of how you can interact with the product.
 
-Run locally (Python 3.12):
+1) Open the link to the hosted website:
+[ADD LINK LATER]
 
-1. `pip install -r requirements.txt` installs the requirements of all three services.
-2. Copy `.env.example` to `.env` in the repository root and fill in the values.
-3. `python main.py` starts the assistant on port 8000, classification on 8001 and the dashboard on 8002.
-4. In `frontend`, run `npm install` and `npm run dev`, then open http://localhost:5173.
+On Render each backend service is deployed separately from its own folder with its own `requirements.txt`, and its variables are set in the Render dashboard. Frontend is deployed on Netlify.
 
-On Render each service is deployed separately from its own folder with its own `requirements.txt`, and its variables are set in the Render dashboard.
+2) Run locally (Python 3.12, Node 22.12 or newer), starting in the repository root:
+
+1. Install the requirements of all three services (torch is the CPU-only build):
+   ```
+   pip install -r requirements.txt
+   ```
+2. Install the frontend packages once, then go back to the root:
+   ```
+   cd frontend
+   npm install
+   cd ..
+   ```
+3. Copy `.env.example` to `.env` in the repository root and fill in the values.
+4. Start everything from the root:
+   ```
+   python main.py
+   ```
+
+This starts the assistant on port 8000, classification on 8001, the dashboard on 8002 and the frontend on http://localhost:5173. Press Ctrl+C to stop all of them.
+
+3) Run with Docker (only Docker Desktop is needed), from the repository root:
+
+1. Copy `.env.example` to `.env` and fill in the values.
+2. Build and start all four containers:
+   ```
+   docker compose up --build
+   ```
+3. Open http://localhost:5173. Press Ctrl+C to stop, then `docker compose down` to remove the containers.
+
+The first build takes several minutes because of torch. Inside Docker the services reach each other by name (for example `http://assistant:8000`), which `docker-compose.yml` sets, so the URLs in `.env` are only used by `python main.py`.
 
 ---
 

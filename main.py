@@ -17,6 +17,8 @@ if __name__ == "__main__":
         subprocess.Popen([sys.executable, "-m", "uvicorn", app, "--port", str(port)], cwd=ROOT / folder)
         for folder, app, port in SERVICES
     ]
+    npm = "npm.cmd" if sys.platform == "win32" else "npm"
+    processes.append(subprocess.Popen([npm, "run", "dev"], cwd=ROOT / "frontend"))
     try:
         for process in processes:
             process.wait()
