@@ -91,7 +91,7 @@ function Header({ page, goHome }) {
   function RegionSelect({regions, value, onChange, label = 'Region', showPlaceholder = true}) {
     return <label className="field-label">{label}<select value={value} onChange={event => onChange(event.target.value)}
                                                          disabled={!regions.length}>
-      {showPlaceholder && <option value="">{regions.length ? 'Select a region' : 'No regions available'}</option>}
+      {showPlaceholder && <option value="">Select a region</option>}
       {regions.map(region => <option key={region}
                                      value={region}>{region === '__all__' ? 'All regions' : region}</option>)}
     </select></label>
@@ -126,6 +126,7 @@ function Header({ page, goHome }) {
     const [error, setError] = useState('')
     const [busy, setBusy] = useState(false)
     const fileInput = useRef(null)
+    const cameraInput = useRef(null)
 
     useEffect(() => () => {
       if (preview) URL.revokeObjectURL(preview)
@@ -204,15 +205,24 @@ function Header({ page, goHome }) {
                }}>
             {preview ? <img className="photo-preview" src={preview} alt="Selected item"/> :
                 <span className="upload-symbol"><Icon name="upload"/></span>}
-            <strong>{file ? file.name : 'Drop a photo here'}</strong>
+            <strong className="desktop-upload-label">{file ? file.name : 'Drop a photo here'}</strong>
             <span
                 className="desktop-drop-hint">{file ? 'Choose another if needed' : 'or choose a file from your device'}</span>
             <input ref={fileInput} type="file" accept="image/jpeg,image/png,image/webp" onChange={event => {
               chooseFile(event.target.files[0]);
               event.target.value = ''
             }} hidden/>
-            <button type="button" className="secondary-button" onClick={() => fileInput.current?.click()}>Choose file
+            <input ref={cameraInput} type="file" accept="image/*" capture="environment" onChange={event => {
+              chooseFile(event.target.files[0]);
+              event.target.value = ''
+            }} hidden/>
+            <button type="button" className="secondary-button desktop-file-button" onClick={() => fileInput.current?.click()}>Choose file
             </button>
+            <div className="mobile-upload-actions">
+              <button type="button" onClick={() => fileInput.current?.click()}><Icon name="upload"/><span>Choose photo</span></button>
+              <button type="button" onClick={() => cameraInput.current?.click()}><Icon name="camera"/><span>Take photo</span></button>
+            </div>
+            {file && <span className="mobile-file-name">{file.name}</span>}
           </div>
           <p className="helper-text">JPEG, PNG or WebP · up to 10 MB</p>
           <button className="primary-button wide" disabled={busy}>{busy ? 'Analyzing photo…' : 'Get recommendation'}

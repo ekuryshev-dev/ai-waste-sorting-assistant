@@ -326,6 +326,9 @@ h1,h2 {
 .drop-zone .secondary-button {
   margin-top:8px
 }
+.mobile-upload-actions,.mobile-file-name {
+  display:none
+}
 .helper-text {
   font-size:.82rem;
   color:#8b998e;
@@ -950,7 +953,43 @@ h1,h2 {
   }
   .drop-zone {
     min-height:150px;
-    border-style:solid
+    border-style:solid;
+    padding:10px
+  }
+  .drop-zone .upload-symbol,.desktop-upload-label,.desktop-file-button {
+    display:none
+  }
+  .mobile-upload-actions {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    width:100%;
+    gap:10px
+  }
+  .mobile-upload-actions button {
+    min-height:110px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    border:1px solid #bbd8c3;
+    border-radius:12px;
+    background:#fff;
+    color:#246c45;
+    font:inherit;
+    font-weight:800
+  }
+  .mobile-upload-actions button span {
+    color:inherit
+  }
+  .mobile-upload-actions button:active {
+    background:#e9f7ec
+  }
+  .mobile-file-name {
+    display:block;
+    max-width:100%;
+    overflow-wrap:anywhere;
+    font-size:.8rem
   }
   .photo-page:not(.has-result) .result-panel {
     display:none
