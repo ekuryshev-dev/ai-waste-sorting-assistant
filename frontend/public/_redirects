@@ -1,0 +1,7 @@
+/chat/*                 https://diligen-assistant.onrender.com/chat/:splat                     200
+/classification/*       https://diligen-classification.onrender.com/classification/:splat       200
+/analytics/*            https://diligen-dashboard.onrender.com/analytics/:splat                200
+/health/assistant       https://diligen-assistant.onrender.com/health                          200
+/health/classification  https://diligen-classification.onrender.com/health                     200
+/health/analytics       https://diligen-dashboard.onrender.com/health                          200
+/*                      /index.html                                                            200
