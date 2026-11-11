@@ -259,15 +259,24 @@ function Header({ page, goHome }) {
   const CHAT_TOKEN_KEY = 'diligen-chat-token'
   const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
+  function newChatToken() {
+    if (crypto.randomUUID) return crypto.randomUUID()
+    const bytes = crypto.getRandomValues(new Uint8Array(16))
+    bytes[6] = bytes[6] & 0x0f | 0x40
+    bytes[8] = bytes[8] & 0x3f | 0x80
+    const hex = [...bytes].map(byte => byte.toString(16).padStart(2, '0')).join('')
+    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`
+  }
+
   function loadChatToken() {
     try {
       const saved = sessionStorage.getItem(CHAT_TOKEN_KEY)
       if (saved && UUID_PATTERN.test(saved)) return saved
-      const token = crypto.randomUUID()
+      const token = newChatToken()
       sessionStorage.setItem(CHAT_TOKEN_KEY, token)
       return token
     } catch {
-      return crypto.randomUUID()
+      return newChatToken()
     }
   }
 
