@@ -442,7 +442,6 @@ function Header({ page, goHome }) {
     const [refresh, setRefresh] = useState(0)
     const [busy, setBusy] = useState(false)
     const [error, setError] = useState('')
-    const [updatedAt, setUpdatedAt] = useState(null)
 
     useEffect(() => {
       let active = true
@@ -456,7 +455,6 @@ function Header({ page, goHome }) {
           if (active) {
             setStatistics(summary);
             setTrends(daily);
-            setUpdatedAt(new Date());
             setError('')
           }
         } catch (err) {
@@ -467,12 +465,90 @@ function Header({ page, goHome }) {
       }
 
       load()
-      const timer = window.setInterval(load, 15000)
       return () => {
-        active = false;
-        if (timer) window.clearInterval(timer)
-      }
+  active = false;
+};
     }, [region, period, refresh])
+
+    useEffect(() => {
+  let stopped = false;
+  let socket;
+  let reconnectTimer;
+
+  function connect() {
+    const protocol =
+      window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+
+    socket = new WebSocket(
+      `${protocol}//${window.location.host}/analytics/ws`
+    );
+
+    socket.onopen = () => {
+      // Reload all data after connection or reconnection
+      setRefresh(value => value + 1);
+    };
+
+    socket.onmessage = (message) => {
+      let event;
+
+      try {
+        event = JSON.parse(message.data);
+      } catch {
+        return;
+      }
+
+      if (
+        event.event === 'analytics_updated' &&
+        (region === '__all__' || event.region_code === region)
+      ) {
+        setRefresh(value => value + 1);
+      }
+    };
+
+    socket.onerror = () => {
+      socket.close();
+    };
+
+    socket.onclose = () => {
+      if (!stopped) {
+        reconnectTimer = window.setTimeout(connect, 3000);
+      }
+    };
+  }
+
+  function resync() {
+    setRefresh(value => value + 1);
+  }
+
+  function onVisible() {
+    if (document.visibilityState === 'visible') {
+      resync();
+    }
+  }
+
+  connect();
+
+  window.addEventListener('online', resync);
+  document.addEventListener('visibilitychange', onVisible);
+
+  return () => {
+    stopped = true;
+    window.clearTimeout(reconnectTimer);
+    window.removeEventListener('online', resync);
+    document.removeEventListener('visibilitychange', onVisible);
+    socket?.close();
+  };
+}, [region]);
+
+    useEffect(() => {
+  if (!error) return;
+
+  const timer = window.setTimeout(() => {
+    setRefresh(value => value + 1);
+  }, 5000);
+
+  return () => window.clearTimeout(timer);
+}, [error, refresh]);
 
     const distribution = categories.map(item => ({...item, value: statistics?.[`${item.key}_percentage`] || 0}))
     const peakDay = trends.reduce((best, day) => {
@@ -533,12 +609,16 @@ function Header({ page, goHome }) {
   Analytics: {analyticsStatusText}
 </div>
 
-          <button className="secondary-button refresh-button" onClick={() => setRefresh(value => value + 1)}
-                  disabled={busy}><Icon name="refresh"/> Refresh
-          </button>
+
         </div>
       </div>
-      <p className="updated-line">{busy ? 'Updating…' : updatedAt ? `Updated ${updatedAt.toLocaleTimeString()}` : 'Waiting for data'}{' · Automatically refreshes every 15 seconds'}</p>
+      <p className="updated-line" role="status">
+  {error
+    ? 'Connection interrupted. Retrying automatically...'
+    : busy
+      ? 'Synchronizing data...'
+      : 'Automatically updates when new items are recorded'}
+</p>
       {(error || regionError) && <p className="error-banner" role="alert">{error || regionError}</p>}
       <div className="dashboard-grid">
         <section className="panel summary-panel">

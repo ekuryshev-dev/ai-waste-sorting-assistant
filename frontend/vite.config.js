@@ -12,7 +12,10 @@ export default defineConfig({
     proxy: {
       '/classification': classification,
       '/chat': assistant,
-      '/analytics': analytics,
+      '/analytics': {
+  target: analytics,
+  ws: true,
+},
       '/health/assistant': { target: assistant, rewrite: () => '/health' },
       '/health/classification': { target: classification, rewrite: () => '/health' },
       '/health/analytics': { target: analytics, rewrite: () => '/health' },
