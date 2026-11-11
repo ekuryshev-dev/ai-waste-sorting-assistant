@@ -474,16 +474,18 @@ function Header({ page, goHome }) {
   let stopped = false;
   let socket;
   let reconnectTimer;
+  let retryDelay = 3000;
 
   function connect() {
     const protocol =
       window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 
     socket = new WebSocket(
-      `${protocol}//${window.location.host}/analytics/ws`
+      import.meta.env.VITE_ANALYTICS_WS_URL || `${protocol}//${window.location.host}/analytics/ws`
     );
 
     socket.onopen = () => {
+      retryDelay = 3000;
       // Reload all data after connection or reconnection
       setRefresh(value => value + 1);
     };
@@ -511,7 +513,8 @@ function Header({ page, goHome }) {
 
     socket.onclose = () => {
       if (!stopped) {
-        reconnectTimer = window.setTimeout(connect, 3000);
+        reconnectTimer = window.setTimeout(connect, retryDelay);
+        retryDelay = Math.min(retryDelay * 2, 30000);
       }
     };
   }
