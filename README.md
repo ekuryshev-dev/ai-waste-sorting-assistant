@@ -4,6 +4,8 @@
 
 **Subtopic:** CV- and LLM-Based Waste Awareness Assistant for German Citizens
 
+**Requirements:** see [REQUIREMENTS.md](REQUIREMENTS.md) for the functional and non-functional requirements of the system.
+
 ### Team Overview
 
 |       Member        | Matr. No. |          Subsystem         |
