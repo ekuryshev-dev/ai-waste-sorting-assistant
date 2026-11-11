@@ -1,2 +1,3 @@
-# ai-waste-sorting-assistant
-AI-powered waste classification and recycling recommendations based on regional disposal rules.
+### AI-Powered Waste Sorting & Recycling Assistant
+### Initial branch (not main)
+### Branch main holds the final version of the platform
