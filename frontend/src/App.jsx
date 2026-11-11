@@ -439,7 +439,6 @@ function Header({ page, goHome }) {
     const [period, setPeriod] = useState('all')
     const [statistics, setStatistics] = useState(null)
     const [trends, setTrends] = useState([])
-    const [live, setLive] = useState(false)
     const [refresh, setRefresh] = useState(0)
     const [busy, setBusy] = useState(false)
     const [error, setError] = useState('')
@@ -468,12 +467,12 @@ function Header({ page, goHome }) {
       }
 
       load()
-      const timer = live ? window.setInterval(load, 15000) : null
+      const timer = window.setInterval(load, 15000)
       return () => {
         active = false;
         if (timer) window.clearInterval(timer)
       }
-    }, [region, period, live, refresh])
+    }, [region, period, refresh])
 
     const distribution = categories.map(item => ({...item, value: statistics?.[`${item.key}_percentage`] || 0}))
     const peakDay = trends.reduce((best, day) => {
@@ -533,15 +532,13 @@ function Header({ page, goHome }) {
   <span className="analytics-status-dot" />
   Analytics: {analyticsStatusText}
 </div>
-          <label className="toggle-label"><input type="checkbox" checked={live}
-                                                                                   onChange={event => setLive(event.target.checked)}/><span
-            className="toggle-track"/><span>Auto refresh</span></label>
+
           <button className="secondary-button refresh-button" onClick={() => setRefresh(value => value + 1)}
                   disabled={busy}><Icon name="refresh"/> Refresh
           </button>
         </div>
       </div>
-      <p className="updated-line">{busy ? 'Updating…' : updatedAt ? `Updated ${updatedAt.toLocaleTimeString()}` : 'Waiting for data'}{live && ' · Automatically refreshes every 15 seconds'}</p>
+      <p className="updated-line">{busy ? 'Updating…' : updatedAt ? `Updated ${updatedAt.toLocaleTimeString()}` : 'Waiting for data'}{' · Automatically refreshes every 15 seconds'}</p>
       {(error || regionError) && <p className="error-banner" role="alert">{error || regionError}</p>}
       <div className="dashboard-grid">
         <section className="panel summary-panel">
