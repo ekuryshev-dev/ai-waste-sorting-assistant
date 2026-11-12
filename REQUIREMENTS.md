@@ -32,9 +32,13 @@ DiliGen helps people in Germany sort their waste. A user can photograph an item 
 
 | ID | Requirement |
 |---|---|
-| FR-15 | The dashboard shows the total number of classified items and their distribution across recyclable, compostable and landfill waste, as percentages and as a chart. |
-| FR-16 | The dashboard shows a chart of daily classifications per category and the day with the highest activity. |
-| FR-17 | The statistics can be filtered by region and by period (last 7 days, last 30 days, all time), and update automatically as soon as a new item is recorded. |
+| FR-15 | The dashboard receives a record (material, category and region) for every confident classification. Only requests with the shared secret key can add records; all other requests are rejected. |
+| FR-16 | Each record is validated before it is stored: the material and region must not be empty and the category must be recyclable, compostable, landfill or unknown. Invalid records are rejected with a clear error message. Valid records are stored with their date and time. |
+| FR-17 | The user can view the statistics for all regions together or for a single region, and for the last 7 days, the last 30 days or all time. The region list contains the regions that have records. |
+| FR-18 | The dashboard shows the total number of classified items and their distribution across recyclable, compostable, landfill and unknown waste, as percentages and as a donut chart. |
+| FR-19 | The dashboard shows a chart of daily classifications per category. Each point shows its date, category and number of items. |
+| FR-20 | The dashboard shows the day with the highest activity in the selected period and the number of items classified on that day. |
+| FR-21 | The statistics update automatically as soon as a new record arrives for the selected region, without reloading the page. The page shows whether the live connection is active and reconnects automatically if it drops. |
 
 ## Non-functional requirements
 

@@ -110,12 +110,12 @@ An educational chat about waste sorting, recycling, composting and the circular 
 
 ### Classification Subsystem
 
-The user uploads a photo of a waste item (JPEG, PNG or WebP, up to 10 MB), or takes one with the phone camera, and selects a city.
+The user uploads a photo of a waste item (JPEG, PNG or WebP, up to 10 MB), or takes one with the phone camera, and selects a city from the list of regions stored in the database.
 
-* **Classification.** The image is resized to 224 × 224 and a pre-trained ResNet50 predicts one of 12 labels with a confidence score. `class_mapping.json` maps each label to a material used in the regional rules.
-* **Recommendation.** If the confidence is at least 70% and the label has a material, `DisposalRecommendationEngine` reads the category (recyclable, compostable or landfill) and the disposal instructions for that material and city from the shared regional rules table in Neon.
-* **Fallback.** Otherwise the photo is sent to the assistant's image fallback. If no material can be identified there either, the user is asked for another photo instead of receiving a guessed recommendation.
-* **Statistics.** Each confident CV result is sent to the dashboard as material, category and region. The photo and the recommendation text are not sent, and uploaded photos are not stored.
+* **Classification.** The image is checked, converted to RGB and padded to 224 × 224 without distorting its proportions. A pre-trained ResNet50 then predicts one of 12 labels (battery, biological, brown glass, cardboard, clothes, green glass, metal, paper, plastic, shoes, trash and white glass) with a confidence score. `class_mapping.json` maps each label to a material used in the regional rules, so the model can be replaced by updating only this file.
+* **Recommendation.** If the confidence is at least 70% and the label has a material, `DisposalRecommendationEngine` reads the category (recyclable, compostable or landfill) and the disposal instructions for that material and city from the shared regional rules table in Neon. The page shows the item, its category, what to do with it and the city the rule applies to.
+* **Fallback.** Otherwise the photo is sent to the assistant's image fallback. If no material can be identified there either, the user is asked for another photo instead of receiving a guessed recommendation. Unsupported regions and files that are not valid images are rejected with a clear message.
+* **Statistics.** Each confident CV result is sent to the dashboard as material, category and region, protected by a shared secret key. The photo and the recommendation text are not sent, and uploaded photos are not stored. If the dashboard is unavailable, the user still receives the recommendation.
 
 **Class diagram:**
 ![Class diagram](docs/classification_class_diagram_HW2.png)
@@ -124,10 +124,11 @@ The user uploads a photo of a waste item (JPEG, PNG or WebP, up to 10 MB), or ta
 
 The dashboard collects, processes and presents statistics about classified waste for municipalities and other interested parties.
 
-* **Collecting.** The classification subsystem sends each record to `POST /analytics/records`, which requires a shared secret key. Records are validated and stored in Neon, or in a local SQLite database for development.
-* **Statistics.** For one region or all regions, the dashboard shows the total number of classified items, their distribution across recyclable, compostable, landfill and unknown waste as a donut chart with percentages, a daily trend chart per category, and the day with the highest activity.
-* **Filters.** The statistics can be filtered by region and by period (last 7 days, last 30 days, all time).
-* **Live updates.** The page keeps a WebSocket connection (`/analytics/ws`) and reloads the statistics as soon as a new record arrives. If the connection drops, it reconnects automatically.
+* **Collecting.** The classification subsystem sends each record to `POST /analytics/records`, which requires a shared secret key. Each record passes through a processing pipeline: `ValidationProcessor` checks that the material and region are not empty and that the category is valid, and `AnalyticsProcessor` stores the record with its date and time in Neon, or in a local SQLite database for development. Invalid records are rejected with a clear error message, and database errors return a short message without crashing the service.
+* **Statistics.** For one region or all regions, the dashboard shows the total number of classified items and their distribution across recyclable, compostable, landfill and unknown waste as a donut chart with percentages.
+* **Trends.** A daily trend chart shows one line per category, and each point shows its date, category and number of items. A separate card shows the day with the highest activity and how many items were classified on it.
+* **Filters.** The statistics can be filtered by region and by period (last 7 days, last 30 days, all time). The region list is built from the regions that have records, and regions or periods without records show an empty state.
+* **Live updates.** The page keeps a WebSocket connection (`/analytics/ws`) and reloads the statistics as soon as a new record arrives for the selected region. A status indicator shows whether the connection is active. If the connection drops, it reconnects automatically, and the data is refreshed when the user returns to the tab or the device goes back online.
 
 **Class diagram:**
 ![Class diagram](dashboard_subsystem/docs/uml_class_diagram.png)
