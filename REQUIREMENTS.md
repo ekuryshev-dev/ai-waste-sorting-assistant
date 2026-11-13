@@ -28,7 +28,7 @@ DiliGen helps people in Germany sort their waste. A user can photograph an item 
 | FR-13 | The assistant keeps the context of the conversation, so follow-up questions work. |
 | FR-14 | The conversation is kept for up to one day within the same browser session, so the user can leave the chat and return to it. The user can clear the conversation at any time. |
 
-### Statistics dashboard
+### Analytics
 
 | ID | Requirement |
 |---|---|
