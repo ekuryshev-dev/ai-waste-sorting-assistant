@@ -131,7 +131,7 @@ The dashboard collects, processes and presents statistics about classified waste
 * **Live updates.** The page keeps a WebSocket connection (`/analytics/ws`) and reloads the statistics as soon as a new record arrives for the selected region. A status indicator shows whether the connection is active. If the connection drops, it reconnects automatically, and the data is refreshed when the user returns to the tab or the device goes back online.
 
 **Class diagram:**
-![Class diagram](dashboard_subsystem/docs/uml_class_diagram.png)
+![Class diagram](docs/WasteAnalytics_UML.png)
 
 ---
 
