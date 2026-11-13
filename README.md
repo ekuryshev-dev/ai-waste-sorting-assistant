@@ -20,7 +20,7 @@
 
 [Watch the team video review](https://drive.google.com/file/d/1YO0KFPLoPeMhx9o4M55ELHq1SLZFGHit/view)
 
-[Watch the team presentation slides](https://www.youtube.com/)
+[Watch the team presentation slides](https://docs.google.com/presentation/d/1bdJZJ7a7HlJ2ZuCHMeJSWBpoBYeEW2KQLzvH0lfqNyU/edit?usp=sharing)
 
 ---
 
