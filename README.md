@@ -120,7 +120,7 @@ The user uploads a photo of a waste item (JPEG, PNG or WebP, up to 10 MB), or ta
 **Class diagram:**
 ![Class diagram](docs/classification_class_diagram_HW2.png)
 
-### Dashboard Subsystem
+### Waste Analytics Subsystem
 
 The dashboard collects, processes and presents statistics about classified waste for municipalities and other interested parties.
 
