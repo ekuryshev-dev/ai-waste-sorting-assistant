@@ -20,7 +20,7 @@
 
 [Watch the team video review](https://drive.google.com/file/d/1YO0KFPLoPeMhx9o4M55ELHq1SLZFGHit/view)
 
-[Watch the team presentation slides](https://docs.google.com/presentation/d/1bdJZJ7a7HlJ2ZuCHMeJSWBpoBYeEW2KQLzvH0lfqNyU/edit?usp=sharing)
+[Watch the team presentation slides](https://docs.google.com/presentation/d/1bdJZJ7a7HlJ2ZuCHMeJSWBpoBYeEW2KQLzvH0lfqNyU/)
 
 ---
 
@@ -112,13 +112,13 @@ An educational chat about waste sorting, recycling, composting and the circular 
 
 The user uploads a photo of a waste item (JPEG, PNG or WebP, up to 10 MB), or takes one with the phone camera, and selects a city from the list of regions stored in the database.
 
-* **Classification.** The image is checked, converted to RGB and padded to 224 × 224 without distorting its proportions. A pre-trained ResNet50 then predicts one of 12 labels (battery, biological, brown glass, cardboard, clothes, green glass, metal, paper, plastic, shoes, trash and white glass) with a confidence score. `class_mapping.json` maps each label to a material used in the regional rules, so the model can be replaced by updating only this file.
+* **Classification.** The image is checked, converted to RGB and padded to 224 × 224 without distorting its proportions. A pre-trained [ResNet50](classification_subsystem/backend/model/README.md) then predicts one of 12 labels (battery, biological, brown glass, cardboard, clothes, green glass, metal, paper, plastic, shoes, trash and white glass) with a confidence score. The model was fine-tuned on [Kaggle Garbage Classification dataset](https://www.kaggle.com/datasets/mostafaabla/garbage-classification/data), which contains 15,150 images across 12 classes. The model author reports 98.66% accuracy on the validation set after 20 training epochs.`class_mapping.json` maps model labels to materials used in the regional rules; this mapping can be updated without changing the recommendation logic.
 * **Recommendation.** If the confidence is at least 70% and the label has a material, `DisposalRecommendationEngine` reads the category (recyclable, compostable or landfill) and the disposal instructions for that material and city from the shared regional rules table in Neon. The page shows the item, its category, what to do with it and the city the rule applies to.
-* **Fallback.** Otherwise the photo is sent to the assistant's image fallback. If no material can be identified there either, the user is asked for another photo instead of receiving a guessed recommendation. Unsupported regions and files that are not valid images are rejected with a clear message.
-* **Statistics.** Each confident CV result is sent to the dashboard as material, category and region, protected by a shared secret key. The photo and the recommendation text are not sent, and uploaded photos are not stored. If the dashboard is unavailable, the user still receives the recommendation.
+* **Fallback.** Otherwise the photo is sent to the assistant's image fallback. If the assistant cannot provide a disposal category and instructions, the user is asked for another photo. Unsupported regions and files that are not valid images are rejected with a clear message.
+* **Statistics.** When analytics is configured, each confident CV result is sent to the dashboard as material, category and region, protected by a shared secret key. The photo and the recommendation text are not sent, and uploaded photos are not stored. If the dashboard is unavailable, the user still receives the recommendation.
 
 **Class diagram:**
-![Class diagram](docs/classification_class_diagram_HW2.png)
+![Class diagram](docs/classification_class_diagram_final.png)
 
 ### Waste Analytics Subsystem
 
