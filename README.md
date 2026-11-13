@@ -18,7 +18,7 @@
 
 ### Presentation
 
-[Watch the team video review](https://www.youtube.com/)
+[Watch the team video review](https://drive.google.com/file/d/1j8i4pB5H2NG1zqaKZYrriaZeoutqb4oI/view)
 
 [Watch the team presentation slides](https://www.youtube.com/)
 
