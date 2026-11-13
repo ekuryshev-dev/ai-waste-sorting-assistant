@@ -13,7 +13,7 @@ DiliGen helps people in Germany sort their waste. A user can photograph an item 
 | FR-03 | A pre-trained computer vision model (ResNet50) predicts the waste class of the item together with a confidence score. |
 | FR-04 | The predicted class is mapped to a material used in the regional rules. |
 | FR-05 | The system looks up the category (recyclable, compostable or landfill) and the disposal instructions for that material in the selected region, and shows the item, its category and the instructions. |
-| FR-06 | If the model's confidence is below 70% or its class cannot be mapped, the image is passed to the AI assistant's model, which suggests a material from the region's rules. If no material can be identified, the user is asked for another photo instead of receiving a guessed recommendation. |
+| FR-06 | If the model's confidence is below 70% or its class cannot be mapped, the image is passed to the AI assistant's model, which suggests a material from the region's rules. If the assistant cannot provide a disposal category and instructions, the user is asked for another photo. |
 | FR-07 | Every confident classification is recorded (material, category and region) for the statistics. |
 
 ### AI assistant
@@ -46,7 +46,7 @@ DiliGen helps people in Germany sort their waste. A user can photograph an item 
 |---|---|
 | NFR-01 | **Independence.** The three services run separately and communicate over HTTP. If one service is down, the pages of the other services keep working. |
 | NFR-02 | **Extensibility.** New regions and sorting rules are added in the database without changing the source code. Class mappings are stored in a separate file, so rules and mappings can change without retraining the model. |
-| NFR-03 | **Replaceable model.** The computer vision model can be replaced without changing the sorting logic or the regional rules; only the class mapping needs updating. |
+| NFR-03 | **Replaceable model.** The computer vision model can be replaced without changing the recommendation logic or regional rules. Replacing it may require updating the model-loading code, image preprocessing, output labels and class mapping. |
 | NFR-04 | **Privacy.** Uploaded images are not stored. Images are sent to OpenAI only when the computer vision model cannot classify them. For the chat, only the question, the needed regional rules and the recent conversation are sent. No other personal data is collected, and there are no user accounts. |
 | NFR-05 | **Security.** API keys and database credentials are kept in environment variables, are never sent to the browser and are never committed to the repository. Writing analytics records requires a shared secret key. The deployed site uses HTTPS. |
 | NFR-06 | **Limits and errors.** Chat messages are limited to 500 characters, only the last 20 messages are sent as context, and model calls time out after 20 seconds. If a model call fails, the user sees a clear error message and can retry; other pages are not affected. |
